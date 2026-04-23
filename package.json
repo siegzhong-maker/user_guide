@@ -1,0 +1,9 @@
+{
+  "name": "user-guide",
+  "private": true,
+  "description": "在 prototype 子目录执行：npm run dev。也可在本目录运行 npm run dev 调起子项目。",
+  "scripts": {
+    "dev": "npm run dev --prefix prototype",
+    "install:prototype": "npm install --prefix prototype"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "xbotgo-falcon-prototype",
+  "private": true,
+  "type": "module",
+  "description": "横屏拍摄引导 + Falcon 首页 HTML 原型，npm run dev 本地预览",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

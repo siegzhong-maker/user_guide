@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#EEF0F3" id="metaTheme" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Falcon 横屏首页 + 拍摄引导 — 手机端原型</title>
+    <link rel="stylesheet" href="styles.css?v=4" />
+    <!-- 带 ?v= 防止手机浏览器长期缓存旧版 HTML/CSS/JS 导致「界面像旧版、中间全黑像坏了」 -->
+  </head>
+  <!-- 在大显示器上调试「手机式」底栏/浮钮时，可为 body 增加 class: force-mobile-preview -->
+  <body class="device-phone-demo" data-app-view="home">
+    <div id="orientation-hint" class="orientation-hint" aria-live="polite">
+      <p class="orientation-hint__title">请横持手机</p>
+      <p class="orientation-hint__text">本原型中<strong>拍摄主界面</strong>为横屏全屏。返回首页可在竖屏或横屏浏览。</p>
+    </div>
+
+    <div
+      id="app"
+      class="app"
+      data-app-view="home"
+      data-scene="app-home"
+      data-tutorial-open="false"
+      data-tutorial-anchor="corner"
+    >
+      <!-- 横屏·应用首页：顶栏/筛选/卡片区 + 左侧底栏式导航，风格对齐 Falcon 相册/列表（示意） -->
+      <div class="home-land" id="homeLand" aria-label="Falcon 首页横屏版">
+        <header class="home-land__header">
+          <nav class="home-land__tabs" aria-label="主栏目">
+            <button type="button" class="home-tab is-active" aria-current="true">Falcon</button>
+            <button type="button" class="home-tab" disabled>本地</button>
+            <button type="button" class="home-tab" disabled>云端</button>
+            <button type="button" class="home-tab home-tab--ai" disabled>AI分析</button>
+          </nav>
+          <div class="home-land__tools">
+            <span class="home-icon" aria-hidden="true">↻</span>
+            <span class="home-icon" aria-hidden="true">⇅</span>
+          </div>
+        </header>
+        <div class="home-land__filters">
+          <button type="button" class="filter-pill is-active">全部</button>
+          <button type="button" class="filter-pill" disabled>视频</button>
+        </div>
+        <div class="home-land__scroll">
+          <article class="home-card home-card--video">
+            <div class="home-card__thumb" aria-hidden="true"></div>
+            <div class="home-card__bar">
+              <span class="home-card__time">45:00</span>
+              <button type="button" class="home-card__ai" disabled>AI分析</button>
+            </div>
+          </article>
+          <p class="home-land__day">周日</p>
+          <article class="home-card home-card--match">
+            <div class="home-card__match-bg" aria-hidden="true">
+              <span class="home-card__score">雷霆FC 2 - 1 火焰联队</span>
+            </div>
+            <div class="home-card__footer">
+              <button type="button" class="home-card__report" disabled>查看赛事报告</button>
+            </div>
+          </article>
+        </div>
+        <nav class="home-land__nav" aria-label="底栏·横屏版">
+          <button type="button" class="home-nav__item" disabled>
+            <span class="home-nav__ic" aria-hidden="true">⌂</span>
+            <span class="home-nav__tx">首页</span>
+          </button>
+          <button type="button" class="home-nav__item is-active" disabled>
+            <span class="home-nav__ic" aria-hidden="true">▣</span>
+            <span class="home-nav__tx">相册</span>
+          </button>
+          <button type="button" class="home-nav__shoot" id="btnEnterRecord" title="进入横屏拍摄主界面">
+            <span class="home-nav__shoot-inner" aria-hidden="true">拍</span>
+            <span class="sr-only">拍摄</span>
+          </button>
+          <button type="button" class="home-nav__item" disabled>
+            <span class="home-nav__ic" aria-hidden="true">⬚</span>
+            <span class="home-nav__tx">工具箱</span>
+          </button>
+          <button type="button" class="home-nav__item" disabled>
+            <span class="home-nav__ic" aria-hidden="true">◉</span>
+            <span class="home-nav__tx">我的</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="record-ui" id="recordUi" aria-label="横屏拍摄主界面（示意）">
+      <!--
+        引导方案（与实机控件对齐）：
+        1 顶栏首枚 → 设置；2 顶栏第 3 枚 → 追踪；3 右侧红钮 → 录制。
+        教程「?」默认在顶栏右端；可选紧挨设置（见场景面板）。
+      -->
+      <!-- 仿取景 -->
+      <div class="preview" aria-hidden="true">
+        <div class="preview-gradient"></div>
+        <div class="preview-grid"></div>
+        <p class="preview-hint" aria-hidden="true">模拟取景</p>
+      </div>
+
+      <!--
+        实机横屏布局（与参考图一致）：
+        顶缘半透明横条内：设置→遥控→追踪→方向→Live→相册→首页；
+        左上：时间 + 规格；中右：录制计时；右侧列：拍照 / 录制 / 指南针，右下：电量+存储；左下：品牌
+      -->
+      <div class="record-status-tl" aria-hidden="true">
+        <time class="record-status-tl__time" datetime="09:34:08">09:34:08</time>
+        <span class="record-status-tl__spec">1080P/30fps</span>
+      </div>
+
+      <header class="top-strip" aria-label="顶栏控制">
+        <button type="button" class="btn-back" id="btnBackHome" title="返回应用">返回</button>
+        <nav class="top-strip__icons" aria-label="功能图标条">
+          <button type="button" class="icon-btn-tool rail-btn--spot" id="spotSettings" data-spot="settings" title="设置">⚙</button>
+          <button type="button" class="icon-btn-tool" title="遥控器" disabled>⎆</button>
+          <button type="button" class="icon-btn-tool rail-btn--spot" id="spotTrack" data-spot="track" title="目标追踪">◎</button>
+          <button type="button" class="icon-btn-tool" title="云台方向" disabled>✥</button>
+          <button type="button" class="icon-btn-tool icon-btn-tool--live" title="直播" disabled>
+            <span class="live-face" aria-hidden="true">▣</span>
+            <span class="live-txt">live</span>
+          </button>
+          <button type="button" class="icon-btn-tool" title="相册" disabled>▦</button>
+          <button type="button" class="icon-btn-tool" title="首页" disabled>⌂</button>
+        </nav>
+        <button
+          type="button"
+          class="tutorial-entry"
+          id="btnTutorial"
+          aria-haspopup="dialog"
+          aria-controls="tutorialDrawer"
+          title="视频教程与帮助"
+        >
+          <span class="tutorial-entry__glyph" aria-hidden="true">?</span>
+          <span class="sr-only">打开视频教程与说明</span>
+        </button>
+      </header>
+
+      <div class="timer-overlay" role="status" aria-label="本段录制时长">00:00:00</div>
+
+      <aside class="right-stack" aria-label="拍摄与状态">
+        <div class="right-stack__col">
+          <button type="button" class="shutter" title="拍照" aria-label="拍照">○</button>
+          <button type="button" class="record rail-btn--spot" id="spotRecord" data-spot="record" title="开始/结束录制" aria-label="开始录制">
+            <span class="record__inner"></span>
+          </button>
+          <button type="button" class="btn-compass" title="运镜/指向" disabled aria-hidden="true">⎋</button>
+        </div>
+        <div class="right-stack__power" title="设备状态">
+          <div class="power-col">
+            <span class="power-icon" aria-hidden="true">▮</span>
+            <span class="power-pct">85%</span>
+          </div>
+          <span class="sd-ic" title="存储" aria-hidden="true">▭</span>
+        </div>
+      </aside>
+
+      <footer class="record-brand" aria-label="产品">
+        <span class="record-brand__logo" aria-hidden="true">⬡</span>
+        XbotGo Falcon
+      </footer>
+
+      <!-- 霍尔温馨提示 -->
+      <div class="modal-layer" id="hallLayer" hidden role="dialog" aria-modal="true" aria-labelledby="hallTitle">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+          <h2 id="hallTitle" class="modal-title">霍尔校准 · 温馨提示</h2>
+          <p class="modal-body">
+            首次使用或移动过脚架后，请先完成霍尔校准，确保追踪与运镜稳定。
+          </p>
+          <div class="toggle-row">
+            <label class="checkbox">
+              <input type="checkbox" id="mergeFigure3" />
+              <span>合并展示「拍摄要点」（图三的两条提示）</span>
+            </label>
+          </div>
+          <div id="figure3Block" class="figure3-block" hidden>
+            <p class="modal-sub">为获得最佳拍摄效果：</p>
+            <ol class="modal-list">
+              <li>将云台调整至合适高度。</li>
+              <li>使用遥控器开始录制（若已连接）。</li>
+            </ol>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn--secondary" data-close-hall>跳过本次</button>
+            <button type="button" class="btn btn--ghost" data-close-hall>知道了</button>
+            <button type="button" class="btn btn--primary" data-close-hall>去校准</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 轻量引导：聚光灯 + 气泡 -->
+      <div class="coach-layer" id="coachLayer" hidden aria-hidden="true">
+        <div class="coach-dim" id="coachDim"></div>
+        <div class="coach-spot" id="coachSpot" aria-hidden="true"></div>
+        <div class="coach-bubble" id="coachBubble" role="dialog" aria-live="polite">
+          <div class="coach-bubble__meta">
+            <span class="coach-step" id="coachStepLabel">步骤 1 / 3</span>
+            <button type="button" class="icon-btn" id="coachClose" aria-label="关闭引导">✕</button>
+          </div>
+          <p class="coach-bubble__text" id="coachText">说明文字</p>
+          <label class="checkbox coach-once">
+            <input type="checkbox" id="coachNever" />
+            <span>以后不再显示该界面引导</span>
+          </label>
+          <div class="coach-bubble__actions">
+            <button type="button" class="btn btn--ghost" id="coachSkipAll">跳过全部</button>
+            <button type="button" class="btn btn--primary" id="coachNext">下一步</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 教程抽屉：章节 + 假视频 -->
+      <div class="drawer-backdrop" id="tutorialBackdrop" hidden></div>
+      <aside
+        class="tutorial-drawer"
+        id="tutorialDrawer"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tutorialDrawerTitle"
+      >
+        <div class="tutorial-drawer__head">
+          <h2 id="tutorialDrawerTitle" class="tutorial-drawer__title">教程与视频</h2>
+          <button type="button" class="icon-btn" id="closeTutorial" aria-label="关闭">✕</button>
+        </div>
+        <p class="tutorial-drawer__hint">章节化导航（对应原问题 5：可跳转到关心的段落）</p>
+        <ul class="chapter-list" id="chapterList">
+          <li><button type="button" class="chapter-item" data-chapter="1">1. 开箱与组装 <span class="muted">03:12</span></button></li>
+          <li><button type="button" class="chapter-item" data-chapter="2">2. 霍尔校准流程 <span class="muted">02:40</span></button></li>
+          <li><button type="button" class="chapter-item" data-chapter="3">3. 追踪与运镜 <span class="muted">04:05</span></button></li>
+          <li><button type="button" class="chapter-item" data-chapter="4">4. 录制与直播 <span class="muted">02:18</span></button></li>
+        </ul>
+        <div class="video-placeholder" role="img" aria-label="视频占位">
+          <span>视频区域（16:9）</span>
+          <div class="video-placeholder__progress">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+        </div>
+      </aside>
+      </div>
+      <!-- /record-ui：以下为评审控件，在首页与拍摄页均可用 -->
+
+      <div
+        class="demo-backdrop"
+        id="demoBackdrop"
+        hidden
+        aria-hidden="true"
+      ></div>
+      <button
+        type="button"
+        class="demo-fab"
+        id="demoFab"
+        aria-controls="demoDock"
+        aria-expanded="false"
+        title="选择演示场景"
+      >
+        场景
+      </button>
+      <section class="demo-dock" id="demoDock" aria-label="原型场景切换" data-expanded="false">
+        <div class="demo-dock__handle" aria-hidden="true"></div>
+        <p class="demo-dock__title">手机端演示</p>
+        <p class="demo-dock__tip">
+          拍摄页中央为暗色属<strong>模拟相机画面</strong>。若仍像旧版（如左侧一列图标），请用下方 http 方式打开并「强制刷新」。
+        </p>
+        <label>
+          <span class="demo-dock__label">场景</span>
+          <select id="sceneSelect" class="scene-select">
+            <option value="app-home">应用首页（横屏·相册）</option>
+            <option value="main">拍摄主界面（无引导）</option>
+            <option value="hall">霍尔温馨提示</option>
+            <option value="coach-1">轻引导 · 设置</option>
+            <option value="coach-2">轻引导 · 追踪</option>
+            <option value="coach-3">轻引导 · 录制</option>
+            <option value="tutorial">教程抽屉打开</option>
+            <option value="post">已勾选「不再显示」后</option>
+          </select>
+        </label>
+        <fieldset class="demo-dock__field">
+          <legend>教程入口位置</legend>
+          <div class="demo-dock__radios">
+            <label class="demo-dock__radio"><input type="radio" name="anchor" value="corner" checked /> 顶栏右 ?</label>
+            <label class="demo-dock__radio"><input type="radio" name="anchor" value="settings" /> 设置键旁 ?</label>
+          </div>
+        </fieldset>
+        <p class="demo-dock__keys">
+          外接键盘：<kbd>0</kbd> 应用首页 · <kbd>1</kbd>–<kbd>3</kbd> 步 · <kbd>H</kbd> 霍尔 · <kbd>T</kbd> 教程 · <kbd>R</kbd> 拍摄主界面
+        </p>
+        <button type="button" class="demo-dock__close" id="demoDockClose">完成</button>
+      </section>
+    </div>
+
+    <script src="demo.js?v=4"></script>
+  </body>
+</html>

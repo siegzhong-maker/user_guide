@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>拍摄设备新手引导原型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: { extend: {} },
+      };
+    </script>
+    <style>
+      .device-mockup {
+        box-shadow: 0 0 0 10px #111, 0 0 0 12px #333, 0 20px 40px rgba(0, 0, 0, 0.5);
+        border-radius: 40px;
+        overflow: hidden;
+        position: relative;
+      }
+      .camera-bg {
+        background-image: radial-gradient(circle at 50% 50%, #475569 0%, #0f172a 100%);
+        background-color: #000;
+      }
+      @keyframes pulse-red {
+        0% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55);
+        }
+        70% {
+          box-shadow: 0 0 0 16px rgba(239, 68, 68, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+      }
+      .recording-active {
+        animation: pulse-red 2s infinite;
+      }
+      #device[data-guide-active] .hud-btn {
+        pointer-events: none !important;
+      }
+      .guide-arrow-line {
+        transform-origin: 0 0;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen select-none bg-slate-200 p-4 [padding:max(1rem,env(safe-area-inset-top))] flex flex-col items-center justify-center gap-6 lg:flex-row lg:items-start lg:justify-center lg:py-8"
+  >
+    <div
+      class="device-mockup flex h-[375px] w-full max-w-[812px] shrink-0 flex-col overflow-hidden bg-black text-white"
+      id="device"
+      data-testid="device"
+    >
+      <!-- 假状态栏（装饰） -->
+      <div
+        class="z-10 flex h-8 w-full shrink-0 items-center justify-between border-b border-white/5 bg-black/20 px-5 text-xs text-white/80"
+        aria-hidden="true"
+      >
+        <span>10:24</span>
+        <div class="flex space-x-2">
+          <span>5G</span>
+          <span>88%</span>
+        </div>
+      </div>
+
+      <!-- 取景层 -->
+      <div class="camera-bg pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+        <span class="text-lg font-light tracking-widest text-white/25">模拟取景器画面</span>
+      </div>
+
+      <!-- 顶栏：Skip / 计时 / 轻量状态 -->
+      <div
+        class="pointer-events-none absolute left-0 top-0 z-20 flex w-full items-center justify-between px-5 py-3"
+      >
+        <div class="flex w-1/3 justify-start">
+          <button
+            type="button"
+            id="guide-skip-text"
+            onclick="skipUIGuide()"
+            class="pointer-events-auto text-lg font-medium text-white opacity-0 drop-shadow-md transition-opacity [text-shadow:0_1px_3px_#000]"
+            aria-label="跳过本段界面引导"
+          >
+            Skip
+          </button>
+        </div>
+        <div class="flex w-1/3 justify-center">
+          <div
+            class="min-w-[6rem] rounded bg-black/60 px-3 py-1 text-center font-mono text-xs tracking-wider text-white/80"
+            id="recording-time"
+            role="status"
+            aria-live="off"
+          >
+            00:00:00
+          </div>
+        </div>
+        <div class="flex w-1/3 items-center justify-end space-x-1 text-xs text-white/50"></div>
+      </div>
+
+      <!-- 左栏：功能列（最下为设置） -->
+      <div
+        class="absolute inset-y-0 left-3 z-20 flex w-12 flex-col items-center justify-between py-4 text-slate-400"
+        id="left-rail"
+      >
+        <div class="h-10 w-10" aria-hidden="true"></div>
+        <div class="flex flex-1 flex-col items-center justify-center gap-3" aria-hidden="true">
+          <span class="h-1 w-1 rounded-full bg-white/10"></span>
+        </div>
+        <div class="flex flex-col items-center justify-end gap-3 text-white/70" role="group" aria-label="左侧工具">
+          <button
+            type="button"
+            class="flex h-10 w-10 items-center justify-center transition hover:text-white"
+            title="首页"
+            disabled
+            aria-hidden="true"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            </svg>
+          </button>
+          <button type="button" class="h-10 w-10" disabled title="相册" aria-hidden="true">▦</button>
+          <button
+            type="button"
+            id="btn-live"
+            class="hud-btn h-10 w-10 text-[9px] font-bold"
+            disabled
+            title="直播"
+            aria-label="直播"
+          >
+            live
+          </button>
+          <button type="button" class="h-10 w-10" disabled title="方向" aria-hidden="true">✥</button>
+          <button type="button" class="h-10 w-10" disabled title="网格" aria-hidden="true">▦</button>
+          <button
+            type="button"
+            id="btn-settings"
+            class="hud-btn flex h-10 w-10 items-center justify-center text-white transition hover:text-white"
+            title="设置"
+            aria-label="打开拍摄设置"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 教程常驻入口：贴边小标签，避免占用主控件区域 -->
+      <button
+        type="button"
+        id="btn-tutorial"
+        class="hud-btn pointer-events-auto absolute z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/55 text-base font-semibold text-white/90 backdrop-blur transition hover:bg-black/70 hover:text-white touch-none select-none"
+        title="教程中心"
+        aria-controls="tutorial-modal"
+      >
+        ?
+      </button>
+
+      <!-- 底栏信息 -->
+      <div
+        class="pointer-events-none absolute bottom-3 left-0 z-20 flex w-full items-end justify-between px-4 pl-12 text-xs text-slate-500"
+      >
+        <div class="flex space-x-4 font-mono text-[11px]">
+          <span>16:58:18</span>
+          <span>1080P/30fps</span>
+        </div>
+        <div class="mr-1 font-bold text-slate-400">XbotGo <span class="font-normal text-slate-500">Falcon</span></div>
+      </div>
+
+      <!-- 右栏：追踪 + 主录制（竖向居中块） -->
+      <div
+        class="pointer-events-none absolute inset-y-0 right-5 z-20 flex w-32 flex-col items-end py-4"
+        id="right-rail"
+      >
+        <div class="pointer-events-auto absolute right-1 top-[calc(50%-136px)] flex flex-col items-center gap-3.5">
+          <button
+            type="button"
+            id="btn-photo"
+            class="hud-btn h-9 w-9 rounded-full border-2 border-slate-200/90 bg-black/25 shadow-[0_0_0_2px_rgba(0,0,0,0.35)] transition hover:border-white"
+            title="拍照"
+            aria-label="拍照"
+          ></button>
+          <button
+            type="button"
+            id="btn-track"
+            class="hud-btn flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/20 text-slate-200 transition hover:border-white/60 hover:text-white"
+            title="打点"
+            aria-label="打点"
+          >
+            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v2m0 6v2m-5-5h2m6 0h2" />
+              <path d="M16 16l4 4" />
+            </svg>
+          </button>
+        </div>
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 transform pointer-events-auto">
+          <button
+            type="button"
+            id="btn-record"
+            class="hud-btn group flex h-[68px] w-[68px] items-center justify-center rounded-full border-4 border-[#1a1a1a] bg-black/20 transition"
+            title="开始或停止录制"
+            aria-pressed="false"
+            aria-label="录制"
+          >
+            <div
+              id="record-inner"
+              class="h-12 w-12 rounded-full bg-[#b30000] shadow-inner transition duration-300 group-active:scale-95"
+            />
+          </button>
+        </div>
+        <div
+          class="mt-auto flex flex-col items-end gap-0.5 pr-0.5 text-[9px] text-white/50 pointer-events-auto"
+          aria-hidden="true"
+        >
+          <span>▮ 85%</span>
+          <span>▭</span>
+        </div>
+      </div>
+
+      <!-- 模块 A：UI 引导 -->
+      <div
+        id="ui-guide-overlay"
+        class="pointer-events-none absolute inset-0 z-50 hidden transition-opacity duration-300 [opacity:1]"
+        role="dialog"
+        aria-modal="true"
+        aria-label="拍摄功能引导"
+      >
+        <div class="absolute inset-0 bg-black/55" aria-hidden="true"></div>
+        <div id="guide-hint-wrap" class="pointer-events-none absolute inset-0">
+          <div
+            id="guide-line"
+            class="guide-arrow-line absolute h-[2px] bg-white/80 transition-all duration-300 ease-out"
+            aria-hidden="true"
+          ></div>
+          <div
+            id="guide-line-head"
+            class="absolute h-2.5 w-2.5 rotate-45 border-r-2 border-t-2 border-white/80 transition-all duration-300 ease-out"
+            aria-hidden="true"
+          ></div>
+          <div id="guide-text" class="absolute max-w-[18rem] text-xs leading-snug text-white transition-all duration-300">
+            <p id="guide-title" class="text-sm font-semibold">点击开始直播</p>
+            <p id="guide-desc" class="mt-1 text-white/85">直播进行时也可同时录制视频</p>
+          </div>
+        </div>
+        <div class="pointer-events-auto absolute bottom-4 right-4 z-10 flex flex-col items-end gap-2">
+          <div class="rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">
+            <span id="guide-progress" aria-live="polite">1/2</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              id="guide-skip-btn"
+              class="rounded-full bg-white/20 px-3 py-1.5 text-xs text-white/90 transition hover:bg-white/30"
+              aria-label="跳过指引"
+            >
+              Skip
+            </button>
+            <button
+              type="button"
+              onclick="nextGuideStep()"
+              id="guide-next-btn"
+              class="rounded-full bg-white/85 px-3 py-1.5 text-xs font-medium text-black transition hover:bg-white"
+              aria-label="下一步"
+            >
+              下一步
+            </button>
+          </div>
+          <label class="flex cursor-pointer items-center gap-2 rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">
+            <input id="guide-never" type="checkbox" class="rounded" />
+            <span>不再显示界面引导</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 模块 B：霍尔校准全屏（首次点录制时拦截） -->
+      <div
+        id="calibration-modal"
+        class="absolute inset-0 z-[60] flex hidden items-center justify-center bg-black/80 p-6 opacity-0 transition-opacity duration-300"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="calib-title"
+      >
+        <div
+          class="w-full max-w-sm translate-y-4 transform rounded-2xl border border-gray-700 bg-gray-900 p-6 text-center shadow-2xl transition-transform duration-300"
+          id="calibration-content"
+        >
+          <div
+            class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/20 text-blue-500"
+            aria-hidden="true"
+          >
+            <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <h2 id="calib-title" class="mb-2 text-xl font-bold text-white">需要进行霍尔校准</h2>
+          <p class="mb-5 text-sm text-gray-400">
+            进入录制会自动找零点。为保证追踪与运镜效果，请先完成霍尔校准（约 3 秒）。
+          </p>
+          <div id="calibration-progress" class="mb-6 hidden">
+            <div class="h-2 w-full overflow-hidden rounded-full bg-gray-700">
+              <div
+                class="h-full w-0 bg-blue-500 transition-all duration-[3000ms] ease-linear"
+                id="progress-bar"
+              ></div>
+            </div>
+            <p class="mt-2 text-xs text-gray-400">正在找零点，请保持设备平稳…</p>
+          </div>
+          <div class="flex space-x-3" id="calibration-actions">
+            <button
+              type="button"
+              onclick="closeCalibration()"
+              class="flex-1 rounded-xl bg-gray-800 py-3 font-medium text-gray-300 active:bg-gray-700"
+            >
+              暂不录制
+            </button>
+            <button
+              type="button"
+              onclick="startCalibration()"
+              class="flex-1 rounded-xl bg-blue-600 py-3 font-medium text-white shadow-lg shadow-blue-900/50 active:bg-blue-700"
+            >
+              开始校准
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块 C：霍尔必经指引（校准后出现，不可跳过；确认后进入录制） -->
+      <div
+        id="hall-guide-modal"
+        class="absolute inset-0 z-[65] hidden bg-black/55"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hall-guide-title"
+      >
+        <div class="absolute left-0 top-0 h-full w-full">
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-black/40"></div>
+          <div class="absolute left-[21%] top-[20%] h-[46%] w-[10%] rounded border border-white/55">
+            <div class="absolute left-1/2 top-[16%] h-[20%] w-[48%] -translate-x-1/2 rounded border border-white/60"></div>
+          </div>
+          <div class="absolute left-[56%] top-[17%] h-[52%] w-[1px] border-l border-dashed border-white/35"></div>
+          <div class="absolute left-[56%] top-[48%] h-[1px] w-[16%] border-t border-dashed border-green-300/80"></div>
+        </div>
+
+        <div class="absolute right-5 top-[30%] z-10 w-[17rem] text-left text-white">
+          <p id="hall-guide-tag" class="text-lg font-bold text-lime-400">● Calibration complete</p>
+          <h3 id="hall-guide-title" class="mt-1 text-[1.35rem] font-semibold leading-tight">请先对准中线</h3>
+          <p id="hall-guide-desc" class="mt-2 text-sm leading-relaxed text-white/90"></p>
+        </div>
+
+        <button
+          type="button"
+          id="hall-guide-prev"
+          class="absolute bottom-8 left-7 z-10 h-9 w-9 rounded-full bg-white/90 text-sm text-black disabled:opacity-40"
+          aria-label="上一条指引"
+        >
+          ◀
+        </button>
+        <div id="hall-guide-progress" class="absolute bottom-10 left-1/2 z-10 -translate-x-1/2 rounded bg-black/50 px-2 py-0.5 text-xs text-white">
+          1/2
+        </div>
+        <button
+          type="button"
+          id="hall-guide-next"
+          class="absolute bottom-8 right-7 z-10 h-9 w-9 rounded-full bg-white/90 text-sm text-black"
+          aria-label="下一条指引"
+        >
+          ▶
+        </button>
+        <button
+          type="button"
+          id="hall-guide-ok"
+          class="absolute bottom-8 right-20 z-10 hidden rounded-full bg-orange-500 px-6 py-2 text-sm font-semibold text-white"
+          aria-label="确认并开始录制"
+        >
+          OK
+        </button>
+      </div>
+
+      <!-- 模块 D：教程侧栏（常驻入口） -->
+      <div
+        id="tutorial-modal"
+        class="absolute inset-y-0 right-0 z-40 flex hidden w-64 -translate-x-full transform flex-col border-l border-slate-700 bg-gray-900/95 px-4 pt-12 pb-6 text-white backdrop-blur-xl transition-transform duration-300 [padding-top:3rem;]"
+        role="dialog"
+        aria-modal="true"
+        aria-label="教程中心"
+      >
+        <button
+          type="button"
+          onclick="closeTutorial()"
+          class="absolute right-3 top-3 rounded p-2 text-gray-400 hover:bg-white/10"
+          aria-label="关闭教程"
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+        <h2 class="mb-4 text-lg font-bold">教程中心</h2>
+        <div class="flex-1 space-y-3 overflow-y-auto text-sm">
+          <button
+            type="button"
+            data-video-item="live-record"
+            class="w-full overflow-hidden rounded-lg bg-gray-800 text-left transition hover:bg-gray-700"
+          >
+            <div class="relative flex h-20 items-center justify-center bg-slate-700">▶</div>
+            <div class="p-2.5">直播开播与录制联动 <span class="text-slate-500">02:15</span></div>
+          </button>
+          <button
+            type="button"
+            data-video-item="hall-center"
+            class="w-full overflow-hidden rounded-lg bg-gray-800 text-left transition hover:bg-gray-700"
+          >
+            <div class="relative flex h-20 items-center justify-center bg-slate-700">▶</div>
+            <div class="p-2.5">霍尔找零点与中线对准 <span class="text-slate-500">01:30</span></div>
+          </button>
+          <button
+            type="button"
+            data-video-item="height-guide"
+            class="w-full overflow-hidden rounded-lg bg-gray-800 text-left transition hover:bg-gray-700"
+          >
+            <div class="relative flex h-20 items-center justify-center bg-slate-700">▶</div>
+            <div class="p-2.5">架设高度 2.5m 指引 <span class="text-slate-500">01:05</span></div>
+          </button>
+        </div>
+        <p class="mt-3 text-center text-xs text-slate-500">此入口常驻，随时回看直播/霍尔/架设高度视频指引。</p>
+      </div>
+      <div
+        id="tutorial-float-window"
+        class="pointer-events-auto absolute bottom-16 right-[4.5rem] z-[45] hidden w-44 rounded-xl border border-white/20 bg-black/75 p-2.5 text-white shadow-xl backdrop-blur touch-none select-none cursor-grab"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="mb-1 flex items-center justify-between text-[11px] text-white/80">
+          <span id="tutorial-float-title">视频讲解中</span>
+          <button
+            type="button"
+            id="tutorial-float-close"
+            class="rounded px-1 text-white/60 hover:bg-white/10 hover:text-white"
+            aria-label="关闭浮窗"
+          >
+            ×
+          </button>
+        </div>
+        <div class="h-16 rounded-md bg-slate-700/90 flex items-center justify-center text-[11px] text-white/90">播放浮窗预览</div>
+        <p class="mt-1 text-[10px] leading-snug text-white/70">视频播放中保持常驻，可边看边操作拍摄界面。</p>
+      </div>
+      <div
+        id="float-close-zone"
+        class="pointer-events-none absolute bottom-3 right-3 z-[47] hidden h-20 w-44 items-center justify-center rounded-2xl border border-rose-200/60 bg-gradient-to-b from-rose-400/30 to-red-700/40 text-white shadow-[0_8px_24px_rgba(239,68,68,0.35)] backdrop-blur-md transition-all duration-200"
+      >
+        <div class="flex items-center gap-2 rounded-xl bg-black/20 px-3 py-2">
+          <span class="text-base leading-none">🗑</span>
+          <span class="text-xs font-semibold tracking-wide">拖到这里关闭</span>
+        </div>
+      </div>
+
+      <div
+        id="settings-panel"
+        class="pointer-events-auto absolute bottom-14 left-14 z-[46] hidden w-56 rounded-xl border border-white/20 bg-black/80 p-3 text-white shadow-xl backdrop-blur"
+        role="dialog"
+        aria-modal="false"
+        aria-label="拍摄设置面板"
+      >
+        <div class="mb-2 text-sm font-semibold">拍摄设置</div>
+        <label class="flex items-center justify-between gap-3 rounded-lg bg-white/5 px-2 py-2 text-xs">
+          <span>教程视频常驻入口</span>
+          <button
+            type="button"
+            id="settings-tutorial-entry-toggle"
+            class="relative h-6 w-11 rounded-full bg-slate-500 transition"
+            aria-pressed="true"
+          >
+            <span
+              id="settings-tutorial-entry-thumb"
+              class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform"
+            ></span>
+          </button>
+        </label>
+      </div>
+    </div>
+
+    <!-- 控制面板：与手机模拟器并排，不遮挡取景区（小屏时叠在手机下方） -->
+    <div
+      id="proto-control-panel"
+      class="w-full max-w-[20rem] shrink-0 rounded-xl border border-slate-200 bg-white/95 p-3 text-sm shadow-lg lg:sticky lg:top-4 lg:max-w-[16rem] lg:self-start"
+    >
+      <h3 class="border-b border-slate-200 pb-1.5 text-sm font-bold">原型控制</h3>
+      <p class="mb-2 mt-1 text-xs text-slate-500">重放新手指引、清空本地状态。</p>
+      <div class="space-y-1.5">
+        <button
+          type="button"
+          onclick="resetPrototype()"
+          class="w-full rounded bg-slate-200 py-1.5 text-xs font-medium transition hover:bg-slate-300"
+        >
+          重置并重新体验
+        </button>
+        <button
+          type="button"
+          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); location.reload();"
+          class="w-full rounded border border-slate-200 py-1.5 text-xs text-slate-600"
+        >
+          清除本页 localStorage
+        </button>
+      </div>
+      <p class="mt-2 text-[10px] leading-tight text-slate-400">
+        多页版旧原型已另存为 <code>index.legacy.html</code>。本页使用 <code>npm run dev</code> 即 Vite 预览。
+      </p>
+    </div>
+
+    <script>
+      const LS_DONE = "tw_proto_guide_v1";
+      const LS_NEVER = "tw_proto_never_v1";
+      const LS_CAL = "tw_proto_hall_v1";
+      const LS_TUTORIAL_ENTRY = "tw_proto_tutorial_entry_v1";
+      const LS_TUTORIAL_AUTO_OPENED = "tw_proto_tutorial_auto_opened_v1";
+
+      let state = {
+        isHardwareCalibrated: false,
+        isRecording: false,
+        hallGuideStep: 0,
+        guideStep: 0,
+        timerInterval: null,
+        seconds: 0,
+      };
+
+      const uiGuideOverlay = document.getElementById("ui-guide-overlay");
+      const guideTextBox = document.getElementById("guide-text");
+      const guideTitle = document.getElementById("guide-title");
+      const guideDesc = document.getElementById("guide-desc");
+      const guideProgress = document.getElementById("guide-progress");
+      const guideNextBtn = document.getElementById("guide-next-btn");
+      const guideSkipBtn = document.getElementById("guide-skip-btn");
+      const guideLine = document.getElementById("guide-line");
+      const guideLineHead = document.getElementById("guide-line-head");
+      const guideNever = document.getElementById("guide-never");
+
+      const calibrationModal = document.getElementById("calibration-modal");
+      const calibrationContent = document.getElementById("calibration-content");
+      const calibrationProgress = document.getElementById("calibration-progress");
+      const progressBar = document.getElementById("progress-bar");
+      const calibrationActions = document.getElementById("calibration-actions");
+      const hallGuideModal = document.getElementById("hall-guide-modal");
+      const hallGuideTitle = document.getElementById("hall-guide-title");
+      const hallGuideDesc = document.getElementById("hall-guide-desc");
+      const hallGuideProgress = document.getElementById("hall-guide-progress");
+      const hallGuidePrevBtn = document.getElementById("hall-guide-prev");
+      const hallGuideNextBtn = document.getElementById("hall-guide-next");
+      const hallGuideOkBtn = document.getElementById("hall-guide-ok");
+      const tutorialModal = document.getElementById("tutorial-modal");
+      const tutorialFloatWindow = document.getElementById("tutorial-float-window");
+      const tutorialFloatTitle = document.getElementById("tutorial-float-title");
+      const tutorialFloatCloseBtn = document.getElementById("tutorial-float-close");
+      const floatCloseZone = document.getElementById("float-close-zone");
+      const settingsPanel = document.getElementById("settings-panel");
+      const settingsTutorialEntryToggle = document.getElementById("settings-tutorial-entry-toggle");
+      const settingsTutorialEntryThumb = document.getElementById("settings-tutorial-entry-thumb");
+      const deviceEl = document.getElementById("device");
+      const btnTutorial = document.getElementById("btn-tutorial");
+      const btnSettings = document.getElementById("btn-settings");
+      const btnRecord = document.getElementById("btn-record");
+      const recordInner = document.getElementById("record-inner");
+
+      const guideSteps = [
+        {
+          targetId: "btn-live",
+          title: "点击开始直播",
+          desc: "直播进行中可同时录制，方便留存完整素材",
+        },
+        {
+          targetId: "btn-record",
+          title: "点击红色按钮开始录制",
+          desc: "再次点击可结束录制，本机将自动保存本段视频",
+        },
+      ];
+      const hallGuideSteps = [
+        {
+          title: "请先对准中线",
+          desc: "设备自动找零点后，请手动旋转三脚架，让镜头正对中线。不要手持摆动 Falcon。",
+        },
+        {
+          title: "请确认架设高度",
+          desc: "将设备固定在约 2.5m 高度并保持稳定。确认后再进入录制，可获得更完整覆盖。",
+        },
+      ];
+      function setGuideLine(x1, y1, x2, y2) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const ang = Math.atan2(dy, dx) * (180 / Math.PI);
+        guideLine.style.left = x1 + "px";
+        guideLine.style.top = y1 + "px";
+        guideLine.style.width = len + "px";
+        guideLine.style.transform = "rotate(" + ang + "deg)";
+        guideLineHead.style.left = x2 - 5 + "px";
+        guideLineHead.style.top = y2 - 5 + "px";
+        guideLineHead.style.transform = "rotate(" + (ang + 45) + "deg)";
+      }
+
+      function renderGuideStep(stepIndex) {
+        if (stepIndex < 0 || stepIndex >= guideSteps.length) return;
+        state.guideStep = stepIndex;
+        const step = guideSteps[stepIndex];
+        const target = document.getElementById(step.targetId);
+        if (!target || !deviceEl) return;
+
+        const tRect = target.getBoundingClientRect();
+        const cRect = deviceEl.getBoundingClientRect();
+        guideTitle.textContent = step.title;
+        guideDesc.textContent = step.desc;
+        guideProgress.textContent = stepIndex + 1 + "/" + guideSteps.length;
+        guideNextBtn.textContent = stepIndex === guideSteps.length - 1 ? "完成" : "下一步";
+
+        const tx = tRect.left - cRect.left + tRect.width / 2;
+        const ty = tRect.top - cRect.top + tRect.height / 2;
+        const isRight = tx > cRect.width * 0.6;
+        const textX = isRight ? Math.max(30, tx - 260) : Math.min(cRect.width - 250, tx + 36);
+        const textY = Math.max(42, Math.min(cRect.height - 68, ty - 30));
+        guideTextBox.style.left = textX + "px";
+        guideTextBox.style.top = textY + "px";
+
+        const fromX = isRight ? textX + 230 : textX + 6;
+        const fromY = textY + 18;
+        setGuideLine(fromX, fromY, tx, ty);
+      }
+
+      function renderHallGuideStep(stepIndex) {
+        if (!hallGuideSteps[stepIndex]) return;
+        state.hallGuideStep = stepIndex;
+        hallGuideTitle.textContent = hallGuideSteps[stepIndex].title;
+        hallGuideDesc.textContent = hallGuideSteps[stepIndex].desc;
+        hallGuideProgress.textContent = stepIndex + 1 + "/" + hallGuideSteps.length;
+        hallGuidePrevBtn.disabled = stepIndex === 0;
+        hallGuideNextBtn.classList.toggle("hidden", stepIndex === hallGuideSteps.length - 1);
+        hallGuideOkBtn.classList.toggle("hidden", stepIndex !== hallGuideSteps.length - 1);
+      }
+      function showHallGuideModal() {
+        hallGuideModal.classList.remove("hidden");
+        renderHallGuideStep(0);
+      }
+      function closeHallGuideModal() {
+        hallGuideModal.classList.add("hidden");
+      }
+      function completeHallGuideAndRecord() {
+        closeHallGuideModal();
+        toggleRecording();
+      }
+
+      function checkAndShowGuide() {
+        if (localStorage.getItem(LS_NEVER) === "1") {
+          return;
+        }
+        if (localStorage.getItem(LS_DONE) === "1") {
+          return;
+        }
+        if (localStorage.getItem(LS_CAL) === "1") {
+          state.isHardwareCalibrated = true;
+        }
+        setTimeout(function () {
+          deviceEl.setAttribute("data-guide-active", "true");
+          uiGuideOverlay.classList.remove("hidden", "pointer-events-none");
+          uiGuideOverlay.classList.add("pointer-events-auto");
+          uiGuideOverlay.removeAttribute("aria-hidden");
+          renderGuideStep(0);
+        }, 500);
+      }
+
+      function nextGuideStep() {
+        if (state.guideStep < guideSteps.length - 1) {
+          renderGuideStep(state.guideStep + 1);
+        } else {
+          completeGuide();
+        }
+      }
+
+      function completeGuide() {
+        if (guideNever && guideNever.checked) {
+          localStorage.setItem(LS_NEVER, "1");
+        } else {
+          localStorage.setItem(LS_DONE, "1");
+        }
+        closeGuideUI();
+      }
+
+      function skipUIGuide() {
+        if (guideNever && guideNever.checked) {
+          localStorage.setItem(LS_NEVER, "1");
+        } else {
+          localStorage.setItem(LS_DONE, "1");
+        }
+        closeGuideUI();
+      }
+
+      function closeGuideUI() {
+        if (deviceEl) deviceEl.removeAttribute("data-guide-active");
+        uiGuideOverlay.classList.add("pointer-events-none", "hidden");
+        uiGuideOverlay.setAttribute("aria-hidden", "true");
+      }
+
+      function bindEvents() {
+        btnRecord.addEventListener("click", handleRecordClick);
+        bindDraggableTutorialHandle();
+        if (btnSettings) btnSettings.addEventListener("click", toggleSettingsPanel);
+        if (tutorialFloatCloseBtn) {
+          tutorialFloatCloseBtn.addEventListener("click", function () {
+            tutorialFloatWindow.classList.add("hidden");
+          });
+        }
+        bindDraggableFloatWindow();
+        if (settingsTutorialEntryToggle) {
+          settingsTutorialEntryToggle.addEventListener("click", function () {
+            var isOn = settingsTutorialEntryToggle.getAttribute("aria-pressed") !== "true";
+            setTutorialEntryEnabled(isOn);
+          });
+        }
+        if (tutorialModal) {
+          tutorialModal.querySelectorAll("[data-video-item]").forEach(function (el) {
+            el.addEventListener("click", function () {
+              showTutorialFloatWindow(el.getAttribute("data-video-item"));
+            });
+          });
+        }
+        if (guideSkipBtn) guideSkipBtn.addEventListener("click", skipUIGuide);
+        if (hallGuidePrevBtn) {
+          hallGuidePrevBtn.addEventListener("click", function () {
+            if (state.hallGuideStep > 0) renderHallGuideStep(state.hallGuideStep - 1);
+          });
+        }
+        if (hallGuideNextBtn) {
+          hallGuideNextBtn.addEventListener("click", function () {
+            if (state.hallGuideStep < hallGuideSteps.length - 1) renderHallGuideStep(state.hallGuideStep + 1);
+          });
+        }
+        if (hallGuideOkBtn) {
+          hallGuideOkBtn.addEventListener("click", completeHallGuideAndRecord);
+        }
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            if (!uiGuideOverlay.classList.contains("hidden")) skipUIGuide();
+            if (!calibrationModal.classList.contains("hidden")) closeCalibration();
+            if (!tutorialModal.classList.contains("hidden")) closeTutorial();
+          }
+        });
+      }
+
+      function handleRecordClick() {
+        if (!uiGuideOverlay.classList.contains("hidden")) return;
+        if (!hallGuideModal.classList.contains("hidden")) return;
+        if (state.isRecording) {
+          toggleRecording();
+          return;
+        }
+        if (!state.isHardwareCalibrated) {
+          showCalibrationModal();
+        } else {
+          showHallGuideModal();
+        }
+      }
+
+      function showCalibrationModal() {
+        calibrationModal.classList.remove("hidden");
+        requestAnimationFrame(function () {
+          calibrationModal.classList.remove("opacity-0");
+          calibrationModal.classList.add("opacity-100");
+        });
+        calibrationContent.classList.remove("translate-y-4");
+      }
+      function closeCalibration() {
+        calibrationModal.classList.add("opacity-0");
+        calibrationModal.classList.remove("opacity-100");
+        calibrationContent.classList.add("translate-y-4");
+        setTimeout(function () {
+          calibrationModal.classList.add("hidden");
+        }, 300);
+      }
+
+      function startCalibration() {
+        progressBar.style.width = "0%";
+        calibrationActions.classList.add("hidden");
+        calibrationProgress.classList.remove("hidden");
+        setTimeout(function () {
+          void progressBar.offsetWidth;
+          progressBar.style.width = "100%";
+        }, 50);
+        setTimeout(function () {
+          state.isHardwareCalibrated = true;
+          localStorage.setItem(LS_CAL, "1");
+          closeCalibration();
+          setTimeout(function () {
+            calibrationActions.classList.remove("hidden");
+            calibrationProgress.classList.add("hidden");
+            progressBar.style.width = "0%";
+            showHallGuideModal();
+          }, 350);
+        }, 3000);
+      }
+
+      function toggleRecording() {
+        state.isRecording = !state.isRecording;
+        const timeDisplay = document.getElementById("recording-time");
+        if (state.isRecording) {
+          recordInner.classList.remove("h-12", "w-12", "rounded-full");
+          recordInner.classList.add("h-6", "w-6", "rounded-sm");
+          timeDisplay.classList.add("text-red-400", "font-semibold");
+          btnRecord.classList.add("recording-active", "ring-2", "ring-red-500/50");
+          document.getElementById("btn-record").setAttribute("aria-pressed", "true");
+          startTimer();
+        } else {
+          recordInner.classList.add("h-12", "w-12", "rounded-full");
+          recordInner.classList.remove("h-6", "w-6", "rounded-sm");
+          timeDisplay.classList.remove("text-red-400", "font-semibold");
+          btnRecord.classList.remove("recording-active", "ring-2", "ring-red-500/50");
+          document.getElementById("btn-record").setAttribute("aria-pressed", "false");
+          stopTimer();
+        }
+      }
+
+      function startTimer() {
+        state.seconds = 0;
+        const timeDisplay = document.getElementById("recording-time");
+        clearInterval(state.timerInterval);
+        state.timerInterval = setInterval(function () {
+          state.seconds += 1;
+          var s = state.seconds;
+          var h = String(Math.floor(s / 3600)).padStart(2, "0");
+          var m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+          var sec = String(s % 60).padStart(2, "0");
+          timeDisplay.textContent = h + ":" + m + ":" + sec;
+        }, 1000);
+      }
+      function stopTimer() {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+        document.getElementById("recording-time").textContent = "00:00:00";
+      }
+
+      function openTutorial() {
+        tutorialModal.classList.remove("hidden");
+        requestAnimationFrame(function () {
+          tutorialModal.classList.remove("-translate-x-full");
+        });
+      }
+      function closeTutorial() {
+        tutorialModal.classList.add("-translate-x-full");
+        setTimeout(function () {
+          tutorialModal.classList.add("hidden");
+        }, 300);
+      }
+      function toggleSettingsPanel() {
+        settingsPanel.classList.toggle("hidden");
+      }
+      function setTutorialEntryEnabled(isEnabled) {
+        if (!settingsTutorialEntryToggle || !btnTutorial) return;
+        settingsTutorialEntryToggle.setAttribute("aria-pressed", isEnabled ? "true" : "false");
+        settingsTutorialEntryToggle.classList.toggle("bg-blue-500", isEnabled);
+        settingsTutorialEntryToggle.classList.toggle("bg-slate-500", !isEnabled);
+        settingsTutorialEntryThumb.style.transform = isEnabled ? "translateX(20px)" : "translateX(0)";
+        if (isEnabled) {
+          btnTutorial.classList.remove("hidden");
+        } else {
+          btnTutorial.classList.add("hidden");
+          closeTutorial();
+          if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
+        }
+        localStorage.setItem(LS_TUTORIAL_ENTRY, isEnabled ? "1" : "0");
+      }
+      function showTutorialFloatWindow(videoKey) {
+        if (!tutorialFloatWindow) return;
+        var titleMap = {
+          "live-record": "直播开播与录制联动",
+          "hall-center": "霍尔找零点与中线对准",
+          "height-guide": "架设高度 2.5m 指引",
+        };
+        tutorialFloatTitle.textContent = titleMap[videoKey] || "视频讲解中";
+        tutorialFloatWindow.classList.remove("hidden");
+      }
+      function bindDraggableFloatWindow() {
+        if (!tutorialFloatWindow || !deviceEl || !floatCloseZone) return;
+        var drag = {
+          pointerId: null,
+          startX: 0,
+          startY: 0,
+          originLeft: 0,
+          originTop: 0,
+          moved: false,
+        };
+
+        function clamp(value, min, max) {
+          return Math.min(max, Math.max(min, value));
+        }
+        function isOverCloseZone() {
+          if (floatCloseZone.classList.contains("hidden")) return false;
+          var fRect = tutorialFloatWindow.getBoundingClientRect();
+          var zRect = floatCloseZone.getBoundingClientRect();
+          var cx = fRect.left + fRect.width / 2;
+          var cy = fRect.top + fRect.height / 2;
+          return cx >= zRect.left && cx <= zRect.right && cy >= zRect.top && cy <= zRect.bottom;
+        }
+        function setFloatPosition(left, top) {
+          var maxLeft = deviceEl.clientWidth - tutorialFloatWindow.offsetWidth;
+          var maxTop = deviceEl.clientHeight - tutorialFloatWindow.offsetHeight;
+          tutorialFloatWindow.style.left = clamp(left, 0, maxLeft) + "px";
+          tutorialFloatWindow.style.top = clamp(top, 0, maxTop) + "px";
+          tutorialFloatWindow.style.right = "auto";
+          tutorialFloatWindow.style.bottom = "auto";
+        }
+
+        tutorialFloatWindow.addEventListener("pointerdown", function (e) {
+          if (e.target && e.target.id === "tutorial-float-close") return;
+          drag.pointerId = e.pointerId;
+          drag.startX = e.clientX;
+          drag.startY = e.clientY;
+          drag.originLeft = tutorialFloatWindow.offsetLeft;
+          drag.originTop = tutorialFloatWindow.offsetTop;
+          drag.moved = false;
+          floatCloseZone.classList.remove("hidden");
+          floatCloseZone.classList.add("flex");
+          tutorialFloatWindow.setPointerCapture(e.pointerId);
+        });
+
+        tutorialFloatWindow.addEventListener("pointermove", function (e) {
+          if (drag.pointerId !== e.pointerId) return;
+          var dx = e.clientX - drag.startX;
+          var dy = e.clientY - drag.startY;
+          if (!drag.moved && Math.hypot(dx, dy) > 3) {
+            drag.moved = true;
+          }
+          if (drag.moved) {
+            setFloatPosition(drag.originLeft + dx, drag.originTop + dy);
+            floatCloseZone.classList.toggle("ring-2", isOverCloseZone());
+          }
+        });
+
+        tutorialFloatWindow.addEventListener("pointerup", function (e) {
+          if (drag.pointerId !== e.pointerId) return;
+          tutorialFloatWindow.releasePointerCapture(e.pointerId);
+          if (drag.moved && isOverCloseZone()) {
+            tutorialFloatWindow.classList.add("hidden");
+          }
+          drag.pointerId = null;
+          drag.moved = false;
+          floatCloseZone.classList.remove("flex", "ring-2");
+          floatCloseZone.classList.add("hidden");
+        });
+
+        tutorialFloatWindow.addEventListener("pointercancel", function () {
+          drag.pointerId = null;
+          drag.moved = false;
+          floatCloseZone.classList.remove("flex", "ring-2");
+          floatCloseZone.classList.add("hidden");
+        });
+      }
+
+      function maybeAutoOpenTutorialList() {
+        if (localStorage.getItem(LS_TUTORIAL_AUTO_OPENED) === "1") return;
+        if (localStorage.getItem(LS_TUTORIAL_ENTRY) === "0") return;
+        setTimeout(function () {
+          openTutorial();
+          localStorage.setItem(LS_TUTORIAL_AUTO_OPENED, "1");
+        }, 800);
+      }
+
+      function bindDraggableTutorialHandle() {
+        if (!btnTutorial || !deviceEl) return;
+        var drag = {
+          pointerId: null,
+          originLeft: 0,
+          originTop: 0,
+          startX: 0,
+          startY: 0,
+          moved: false,
+          suppressClick: false,
+        };
+
+        function clamp(value, min, max) {
+          return Math.min(max, Math.max(min, value));
+        }
+
+        function positionHandle(left, top) {
+          var maxLeft = deviceEl.clientWidth - btnTutorial.offsetWidth;
+          var maxTop = deviceEl.clientHeight - btnTutorial.offsetHeight;
+          btnTutorial.style.left = clamp(left, 0, maxLeft) + "px";
+          btnTutorial.style.top = clamp(top, 0, maxTop) + "px";
+        }
+        function isOverCloseZone() {
+          if (!floatCloseZone || floatCloseZone.classList.contains("hidden")) return false;
+          var bRect = btnTutorial.getBoundingClientRect();
+          var zRect = floatCloseZone.getBoundingClientRect();
+          var cx = bRect.left + bRect.width / 2;
+          var cy = bRect.top + bRect.height / 2;
+          return cx >= zRect.left && cx <= zRect.right && cy >= zRect.top && cy <= zRect.bottom;
+        }
+
+        function initHandlePosition() {
+          var initLeft = deviceEl.clientWidth - btnTutorial.offsetWidth - 2;
+          var initTop = Math.round(deviceEl.clientHeight * 0.34);
+          positionHandle(initLeft, initTop);
+        }
+
+        btnTutorial.addEventListener("pointerdown", function (e) {
+          drag.pointerId = e.pointerId;
+          drag.startX = e.clientX;
+          drag.startY = e.clientY;
+          drag.originLeft = btnTutorial.offsetLeft;
+          drag.originTop = btnTutorial.offsetTop;
+          drag.moved = false;
+          if (floatCloseZone) {
+            floatCloseZone.textContent = "拖到这里关闭教程入口";
+            floatCloseZone.classList.remove("hidden");
+            floatCloseZone.classList.add("flex");
+          }
+          btnTutorial.setPointerCapture(e.pointerId);
+        });
+
+        btnTutorial.addEventListener("pointermove", function (e) {
+          if (drag.pointerId !== e.pointerId) return;
+          var dx = e.clientX - drag.startX;
+          var dy = e.clientY - drag.startY;
+          if (!drag.moved && Math.hypot(dx, dy) > 4) {
+            drag.moved = true;
+            drag.suppressClick = true;
+          }
+          if (drag.moved) {
+            positionHandle(drag.originLeft + dx, drag.originTop + dy);
+            if (floatCloseZone) {
+              floatCloseZone.classList.toggle("ring-2", isOverCloseZone());
+            }
+          }
+        });
+
+        btnTutorial.addEventListener("pointerup", function (e) {
+          if (drag.pointerId !== e.pointerId) return;
+          btnTutorial.releasePointerCapture(e.pointerId);
+          drag.pointerId = null;
+          if (drag.moved && isOverCloseZone()) {
+            setTutorialEntryEnabled(false);
+          } else if (drag.moved) {
+            var snapLeft = btnTutorial.offsetLeft < deviceEl.clientWidth / 2 ? 2 : deviceEl.clientWidth - btnTutorial.offsetWidth - 2;
+            positionHandle(snapLeft, btnTutorial.offsetTop);
+          }
+          if (floatCloseZone) {
+            floatCloseZone.classList.remove("flex", "ring-2");
+            floatCloseZone.classList.add("hidden");
+            floatCloseZone.textContent = "拖到这里关闭浮窗";
+          }
+        });
+
+        btnTutorial.addEventListener("click", function (e) {
+          if (drag.suppressClick) {
+            e.preventDefault();
+            drag.suppressClick = false;
+            return;
+          }
+          openTutorial();
+        });
+
+        window.addEventListener("resize", function () {
+          positionHandle(btnTutorial.offsetLeft, btnTutorial.offsetTop);
+        });
+
+        initHandlePosition();
+      }
+
+      function resetPrototype() {
+        if (state.isRecording) {
+          toggleRecording();
+        }
+        closeGuideUI();
+        closeCalibration();
+        closeHallGuideModal();
+        closeTutorial();
+        if (settingsPanel) settingsPanel.classList.add("hidden");
+        if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
+        if (floatCloseZone) {
+          floatCloseZone.classList.remove("flex", "ring-2");
+          floatCloseZone.classList.add("hidden");
+        }
+        localStorage.removeItem(LS_DONE);
+        localStorage.removeItem(LS_NEVER);
+        localStorage.removeItem(LS_CAL);
+        state.isHardwareCalibrated = false;
+        state.hallGuideStep = 0;
+        state.seconds = 0;
+        stopTimer();
+        recordInner.className =
+          "h-12 w-12 rounded-full bg-[#b30000] shadow-inner transition duration-300 group-active:scale-95";
+        btnRecord.classList.remove("recording-active", "ring-2", "ring-red-500/50");
+        if (guideNever) guideNever.checked = false;
+        setTimeout(function () {
+          checkAndShowGuide();
+        }, 500);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem(LS_CAL) === "1") {
+          state.isHardwareCalibrated = true;
+        }
+        bindEvents();
+        setTutorialEntryEnabled(localStorage.getItem(LS_TUTORIAL_ENTRY) !== "0");
+        checkAndShowGuide();
+        maybeAutoOpenTutorialList();
+      });
+    </script>
+  </body>
+</html>

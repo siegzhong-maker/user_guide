@@ -154,9 +154,10 @@
       <button
         type="button"
         id="btn-tutorial"
-        class="hud-btn pointer-events-auto absolute z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/55 text-base font-semibold text-white/90 backdrop-blur transition hover:bg-black/70 hover:text-white touch-none select-none"
-        title="Tutorial Center"
-        aria-controls="tutorial-modal"
+        class="hud-btn pointer-events-auto absolute right-44 top-0 z-30 flex h-7 w-10 items-end justify-center rounded-b-2xl border border-white/30 border-t-0 bg-black/70 pb-0.5 text-base font-semibold text-white/95 backdrop-blur transition hover:bg-black/85 hover:text-white"
+        title="Tutorial Center (Settings)"
+        aria-controls="settings-panel"
+        aria-label="Open Tutorial Center in Shooting Settings"
       >
         ?
       </button>
@@ -169,7 +170,9 @@
           <span>16:58:18</span>
           <span>1080P/30fps</span>
         </div>
-        <div class="mr-1 font-bold text-slate-400">XbotGo <span class="font-normal text-slate-500">Falcon</span></div>
+        <div id="device-brand-label" class="mr-1 font-bold text-slate-400">
+          XbotGo <span class="font-normal text-slate-500" id="device-brand-name">Falcon</span>
+        </div>
       </div>
 
       <!-- 右栏：追踪 + 主录制（竖向居中块） -->
@@ -251,11 +254,25 @@
             <p id="guide-desc" class="mt-1 text-white/85">You can record video while live streaming</p>
           </div>
         </div>
-        <div class="pointer-events-auto absolute bottom-4 right-4 z-10 flex flex-col items-end gap-2">
+        <!-- Bottom aligned so Skip/Next row vertical center matches #btn-settings (left rail py-4 + h-10 / 2 minus half primary row ~1.75rem) -->
+        <div
+          class="pointer-events-auto absolute right-6 z-10 flex w-[12.5rem] max-w-[min(12.5rem,calc(100%-5.5rem))] flex-col items-end gap-2 bottom-[calc(env(safe-area-inset-bottom,0px)+1.375rem)]"
+        >
           <div class="rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">
             <span id="guide-progress" aria-live="polite">1/2</span>
           </div>
-          <div class="flex items-center gap-2">
+          <!-- Reserve height above primary row so opt-out can appear without shifting Skip/Next vertically -->
+          <div class="flex min-h-[2.75rem] w-full shrink-0 items-end justify-end">
+            <div id="guide-never-wrap" class="hidden w-full max-w-[9.5rem] text-left">
+              <label
+                class="flex cursor-pointer items-start gap-1.5 rounded-lg bg-black/60 px-2 py-1.5 text-[9px] leading-tight text-white/90"
+              >
+                <input id="guide-never" type="checkbox" class="mt-0.5 shrink-0 rounded" />
+                <span>Don't show again</span>
+              </label>
+            </div>
+          </div>
+          <div class="flex w-full items-center justify-end gap-2">
             <button
               type="button"
               id="guide-skip-btn"
@@ -274,10 +291,6 @@
               Next
             </button>
           </div>
-          <label class="flex cursor-pointer items-center gap-2 rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">
-            <input id="guide-never" type="checkbox" class="rounded" />
-            <span>Do not show guides again</span>
-          </label>
         </div>
       </div>
 
@@ -341,9 +354,13 @@
           <p id="hall-guide-desc" class="mt-2 text-sm leading-relaxed text-white/90"></p>
         </div>
 
-        <div class="pointer-events-auto absolute bottom-4 right-4 z-10 flex flex-col items-end gap-2">
+        <div
+          class="pointer-events-auto absolute bottom-0 right-6 z-10 flex w-[12.5rem] max-w-[min(12.5rem,calc(100%-5.5rem))] flex-col items-end gap-2 [padding-bottom:max(0px,env(safe-area-inset-bottom,0px))]"
+        >
           <div id="hall-guide-progress" class="rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">1/2</div>
-          <div class="flex items-center gap-2">
+          <!-- Match UI guide: same reserved band above primary row -->
+          <div class="flex min-h-[2.75rem] w-full shrink-0 items-end justify-end" aria-hidden="true"></div>
+          <div class="flex w-full items-center justify-end gap-2">
             <button
               type="button"
               id="hall-guide-skip"
@@ -369,13 +386,83 @@
               Done
             </button>
           </div>
-          <label
-            id="hall-guide-never-wrap"
-            class="hidden flex cursor-pointer items-center gap-2 rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90"
+        </div>
+      </div>
+
+      <!-- Chameleon: full-screen scrim blocks HUD overlap; content sits above -->
+      <div
+        id="chameleon-carousel"
+        class="pointer-events-auto absolute inset-0 z-[85] hidden flex-col text-white"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="chameleon-step-text"
+      >
+        <div
+          class="absolute inset-0 bg-slate-950/78 backdrop-blur-[3px]"
+          aria-hidden="true"
+        ></div>
+        <div class="relative z-10 flex h-full min-h-0 flex-col pointer-events-none">
+          <div class="pointer-events-auto flex shrink-0 items-center px-4 pb-2 pt-3">
+            <button
+              type="button"
+              id="chameleon-skip"
+              class="text-base font-medium text-white/95 drop-shadow-md [text-shadow:0_1px_3px_#000]"
+            >
+              Skip
+            </button>
+          </div>
+          <div class="pointer-events-auto flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-28 pt-2">
+            <div
+              class="max-h-[42vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/15 bg-black/55 px-5 py-5 text-center shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-md sm:max-h-none"
+            >
+              <p
+                id="chameleon-step-text"
+                class="text-[15px] font-medium leading-relaxed text-white/95 sm:text-lg"
+              ></p>
+            </div>
+          </div>
+          <!-- Same footer pattern as Falcon (hall / UI guide): step pill + pill Previous/Next + optional last-step checkbox -->
+          <div
+            class="pointer-events-auto absolute bottom-0 right-6 z-10 flex w-[min(18rem,calc(100%-5.5rem))] max-w-[min(18rem,calc(100%-5.5rem))] flex-col items-end gap-2 [padding-bottom:max(0px,env(safe-area-inset-bottom,0px))]"
           >
-            <input id="hall-guide-never" type="checkbox" class="rounded" />
-            <span>Do not show guides again</span>
-          </label>
+            <div class="rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">
+              <span id="chameleon-step-indicator" class="tabular-nums" aria-live="polite">1/4</span>
+            </div>
+            <div class="flex min-h-[2.75rem] w-full shrink-0 items-end justify-end">
+              <div id="chameleon-never-wrap" class="hidden w-full max-w-[9.5rem] text-left">
+                <label class="inline-flex cursor-pointer items-start gap-1.5 rounded-lg bg-black/60 px-2 py-1.5 text-[9px] leading-tight text-white/90">
+                  <input id="chameleon-never" type="checkbox" class="mt-0.5 shrink-0 rounded border-white/40" />
+                  <span>Don't show again</span>
+                </label>
+              </div>
+            </div>
+            <div class="flex w-full flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                id="chameleon-skip-footer"
+                class="rounded-full bg-white/20 px-3 py-1.5 text-xs text-white/90 transition hover:bg-white/30"
+                aria-label="Skip entire guide"
+              >
+                Skip
+              </button>
+              <button
+                type="button"
+                id="chameleon-prev"
+                class="rounded-full bg-white/20 px-3 py-1.5 text-xs text-white/90 transition hover:bg-white/30 disabled:pointer-events-none disabled:opacity-35"
+                aria-label="Previous step"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                id="chameleon-next"
+                class="rounded-full bg-white/85 px-3 py-1.5 text-xs font-medium text-black transition hover:bg-white"
+                aria-label="Next step"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -415,42 +502,65 @@
       <!-- 模块 D：教程侧栏（常驻入口） -->
       <div
         id="tutorial-modal"
-        class="absolute inset-y-0 right-0 z-40 flex hidden w-64 -translate-x-full transform flex-col border-l border-slate-700 bg-gray-900/95 px-4 pt-12 pb-6 text-white backdrop-blur-xl transition-transform duration-300 [padding-top:3rem;]"
+        class="absolute inset-0 z-[92] hidden bg-black/92"
         role="dialog"
         aria-modal="true"
         aria-label="Tutorial Center"
       >
-        <button
-          type="button"
-          onclick="closeTutorial()"
-          class="absolute right-3 top-3 rounded p-2 text-gray-400 hover:bg-white/10"
-          aria-label="Close tutorial panel"
-        >
-          <span aria-hidden="true">✕</span>
-        </button>
-        <h2 class="mb-4 text-lg font-bold">Tutorial Center</h2>
-        <div class="flex-1 space-y-3 overflow-y-auto text-sm">
+        <div class="relative h-full w-full border border-slate-700 bg-slate-900/95 p-5 text-white backdrop-blur-xl">
           <button
             type="button"
-            id="btn-open-all-guides"
-            class="w-full rounded-lg border border-blue-400/40 bg-blue-500/20 px-3 py-2 text-left text-xs text-blue-100 transition hover:bg-blue-500/30"
+            onclick="closeTutorial()"
+            class="absolute right-3 top-3 rounded p-2 text-gray-400 hover:bg-white/10"
+            aria-label="Close tutorial panel"
           >
-            Review onboarding tutorial and precautions
+            <span aria-hidden="true">✕</span>
           </button>
-          <div class="w-full overflow-hidden rounded-lg bg-gray-800 text-left">
-            <div
-              class="relative h-20 bg-slate-700 bg-cover bg-center"
-              style="background-image: url('../image.png')"
+          <h2 class="mb-3 text-lg font-bold">Tutorial Center</h2>
+          <p class="mb-3 text-xs text-slate-300">Select a tutorial, then watch in full-screen mode.</p>
+          <div class="flex max-h-[68vh] flex-col gap-2 overflow-y-auto text-sm" id="tutorial-list"></div>
+          <div class="mt-3 border-t border-slate-700 pt-3">
+            <button
+              type="button"
+              id="btn-open-all-guides"
+              class="w-full rounded-lg border border-blue-400/40 bg-blue-500/20 px-3 py-2 text-left text-xs text-blue-100 transition hover:bg-blue-500/30"
             >
-              <div class="absolute inset-0 flex items-center justify-center bg-black/35">▶</div>
+              Review onboarding tutorial and precautions
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        id="tutorial-player-modal"
+        class="absolute inset-0 z-[93] hidden items-center justify-center bg-black/95 p-5"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Full-screen tutorial player"
+      >
+        <div class="w-full max-w-3xl rounded-2xl border border-slate-700 bg-slate-900 p-5 text-white">
+          <div class="mb-3 flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-wide text-blue-300">Full-screen tutorial</p>
+              <h3 id="tutorial-player-title" class="text-xl font-semibold">Tutorial</h3>
+              <p id="tutorial-player-duration" class="text-xs text-slate-300"></p>
             </div>
-            <div class="p-2.5">Live streaming and recording workflow <span class="text-slate-500">02:15</span></div>
+            <button
+              type="button"
+              id="tutorial-player-close"
+              class="rounded-md border border-slate-600 px-2 py-1 text-xs text-slate-200 hover:bg-slate-800"
+              aria-label="Close full-screen tutorial"
+            >
+              Close
+            </button>
+          </div>
+          <div class="flex h-56 items-center justify-center rounded-xl bg-slate-800 text-sm text-slate-200">
+            Full-screen tutorial preview area
           </div>
         </div>
       </div>
       <div
         id="tutorial-float-window"
-        class="pointer-events-auto absolute bottom-16 right-[4.5rem] z-[45] hidden w-44 rounded-xl border border-white/20 bg-black/75 p-2.5 text-white shadow-xl backdrop-blur touch-none select-none cursor-grab"
+        class="pointer-events-auto absolute right-4 top-12 z-[45] hidden w-52 rounded-xl border border-white/20 bg-black/80 p-2.5 text-white shadow-xl backdrop-blur"
         role="status"
         aria-live="polite"
       >
@@ -478,28 +588,289 @@
         </div>
       </div>
 
+      <!-- 全屏拍摄设置：左侧导航含「教程中心」，与产品 Shooting Settings 稿一致 -->
       <div
         id="settings-panel"
-        class="pointer-events-auto absolute bottom-14 left-14 z-[46] hidden w-56 rounded-xl border border-white/20 bg-black/80 p-3 text-white shadow-xl backdrop-blur"
+        class="pointer-events-auto absolute inset-0 z-[88] hidden min-h-0 flex-col bg-black text-white"
         role="dialog"
-        aria-modal="false"
-        aria-label="Capture settings panel"
+        aria-modal="true"
+        aria-label="Shooting Settings"
       >
-        <div class="mb-2 text-sm font-semibold">Capture Settings</div>
-        <label class="flex items-center justify-between gap-3 rounded-lg bg-white/5 px-2 py-2 text-xs">
-          <span>Tutorial Center entry</span>
+        <header class="flex shrink-0 items-center justify-between border-b border-white/10 px-3 py-2.5">
           <button
             type="button"
-            id="settings-tutorial-entry-toggle"
-            class="relative h-6 w-11 rounded-full bg-slate-500 transition"
-            aria-pressed="true"
+            id="settings-panel-back"
+            class="flex h-9 w-9 items-center justify-center rounded-lg text-white/90 hover:bg-white/10"
+            aria-label="Back"
           >
-            <span
-              id="settings-tutorial-entry-thumb"
-              class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform"
-            ></span>
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
-        </label>
+          <h2 class="text-[15px] font-semibold tracking-tight">Shooting Settings</h2>
+          <button
+            type="button"
+            id="settings-panel-done"
+            class="rounded-lg px-3 py-1.5 text-[15px] font-semibold text-[#5a96ff] hover:bg-white/5"
+          >
+            Done
+          </button>
+        </header>
+        <div class="flex min-h-0 flex-1">
+          <nav
+            class="flex w-[11rem] shrink-0 flex-col gap-1 border-r border-white/10 py-3 pl-2 pr-2"
+            aria-label="Settings sections"
+          >
+            <button
+              type="button"
+              id="settings-nav-general"
+              class="settings-nav-item rounded-xl px-3 py-2.5 text-left text-[13px] font-medium transition bg-white/15 text-white"
+              aria-current="page"
+              data-settings-tab="general"
+            >
+              General
+            </button>
+            <button
+              type="button"
+              id="settings-nav-capture"
+              class="settings-nav-item rounded-xl px-3 py-2.5 text-left text-[13px] font-medium text-white/55 transition hover:bg-white/10 hover:text-white"
+              data-settings-tab="capture"
+            >
+              Capture
+            </button>
+            <button
+              type="button"
+              id="settings-nav-hardware"
+              class="settings-nav-item rounded-xl px-3 py-2.5 text-left text-[13px] font-medium text-white/55 transition hover:bg-white/10 hover:text-white"
+              data-settings-tab="hardware"
+            >
+              Hardware Settings
+            </button>
+            <button
+              type="button"
+              id="settings-nav-tutorial"
+              class="settings-nav-item rounded-xl px-3 py-2.5 text-left text-[13px] font-medium text-white/55 transition hover:bg-white/10 hover:text-white"
+              data-settings-tab="tutorial"
+            >
+              Tutorial Center
+            </button>
+          </nav>
+          <div class="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+            <section id="settings-section-general" class="settings-section flex min-h-full flex-col gap-3">
+              <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
+                <div class="min-w-0">
+                  <div class="text-[15px] font-medium">Auto Tracking</div>
+                  <p class="mt-0.5 text-xs leading-snug text-white/45">Keep the subject centered as it moves.</p>
+                </div>
+                <div class="relative h-7 w-11 shrink-0 rounded-full bg-white/20">
+                  <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-sm"></span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
+                <div class="min-w-0">
+                  <div class="text-[15px] font-medium">Auto Zoom</div>
+                  <p class="mt-0.5 text-xs leading-snug text-white/45">Keep the subject centered as it moves.</p>
+                </div>
+                <div class="relative h-7 w-11 shrink-0 rounded-full bg-white/20">
+                  <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-sm"></span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
+                <div class="min-w-0">
+                  <div class="text-[15px] font-medium">Timestamp</div>
+                </div>
+                <div class="relative h-7 w-11 shrink-0 rounded-full bg-orange-500">
+                  <span class="absolute right-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-sm"></span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
+                <div class="min-w-0">
+                  <div class="text-[15px] font-medium">Microphone</div>
+                  <p class="mt-0.5 text-xs leading-snug text-white/45">
+                    Records audio when enabled. Turn it off for silent recording.
+                  </p>
+                </div>
+                <div class="relative h-7 w-11 shrink-0 rounded-full bg-white/20">
+                  <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-sm"></span>
+                </div>
+              </div>
+              <label class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
+                <div class="min-w-0">
+                  <div class="text-[15px] font-medium">取景页「?」教程入口</div>
+                  <p class="mt-0.5 text-xs leading-snug text-white/45">关闭后拍摄界面不再显示教程快捷入口。</p>
+                </div>
+                <button
+                  type="button"
+                  id="settings-tutorial-entry-toggle"
+                  class="relative h-7 w-11 shrink-0 rounded-full bg-blue-500 transition"
+                  aria-pressed="true"
+                >
+                  <span
+                    id="settings-tutorial-entry-thumb"
+                    class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white transition-transform shadow-sm"
+                  ></span>
+                </button>
+              </label>
+              <div class="mt-auto flex justify-center pt-6 pb-2">
+                <button type="button" class="text-sm font-medium text-red-400/95 hover:text-red-300">Restore Defaults</button>
+              </div>
+            </section>
+            <section id="settings-section-capture" class="settings-section hidden flex min-h-full flex-col gap-4">
+              <div>
+                <div class="text-[15px] font-medium">Resolution</div>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <button type="button" class="rounded-full border border-white px-3 py-1.5 text-xs font-medium text-white">
+                    1080P/30fps
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full border border-white/25 px-3 py-1.5 text-xs text-white/65 hover:border-white/40"
+                  >
+                    1080P/60fps
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full border border-white/25 px-3 py-1.5 text-xs text-white/65 hover:border-white/40"
+                  >
+                    4K/30fps
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div class="text-[15px] font-medium">Ant-Flicker</div>
+                <p class="mt-1 text-xs text-white/45">Help keep video more stable under indoor lights and screens.</p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <button type="button" class="rounded-full border border-white px-3 py-1.5 text-xs font-medium text-white">
+                    Auto
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full border border-white/25 px-3 py-1.5 text-xs text-white/65 hover:border-white/40"
+                  >
+                    50Hz
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full border border-white/25 px-3 py-1.5 text-xs text-white/65 hover:border-white/40"
+                  >
+                    60Hz
+                  </button>
+                </div>
+              </div>
+              <div class="mt-auto flex justify-center pt-6 pb-2">
+                <button type="button" class="text-sm font-medium text-red-400/95 hover:text-red-300">Restore Defaults</button>
+              </div>
+            </section>
+            <section id="settings-section-hardware" class="settings-section hidden flex min-h-full flex-col gap-4">
+              <div>
+                <div class="text-[15px] font-medium">Device Rotation Angle</div>
+                <p class="mt-1 text-xs text-white/45">Adjust the device angle for your shooting setup and coverage area.</p>
+              </div>
+              <div class="flex flex-col items-center rounded-xl bg-white/[0.06] px-4 py-5">
+                <div class="relative h-24 w-44 text-[#5a96ff]">
+                  <svg viewBox="0 0 176 80" class="h-full w-full" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      fill-opacity="0.35"
+                      d="M8 72 Q88 8 168 72 Z"
+                    />
+                    <circle cx="88" cy="72" r="6" fill="#fb923c" />
+                  </svg>
+                  <span class="absolute bottom-1 left-1/2 -translate-x-1/2 text-[10px] tabular-nums text-white/50">120°</span>
+                </div>
+                <div class="mt-4 h-2 w-full max-w-xs rounded-full bg-white/15">
+                  <div class="h-full w-[52%] rounded-full bg-orange-500/90"></div>
+                </div>
+                <div class="mt-1 flex w-full max-w-xs justify-between text-[10px] tabular-nums text-white/40">
+                  <span>60°</span>
+                  <span>150°</span>
+                </div>
+              </div>
+              <div class="mt-auto flex justify-center pt-6 pb-2">
+                <button type="button" class="text-sm font-medium text-red-400/95 hover:text-red-300">Restore Defaults</button>
+              </div>
+            </section>
+            <section id="settings-section-tutorial" class="settings-section hidden flex min-h-full flex-col gap-4">
+              <div>
+                <h3 class="text-lg font-semibold">Tutorial Center</h3>
+                <p class="mt-1 text-xs leading-relaxed text-white/45">
+                  Featured tutorial — preview below; tap to watch fullscreen on top of the capture preview.
+                </p>
+              </div>
+              <label class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
+                <div class="min-w-0">
+                  <div class="text-[15px] font-medium">“?” shortcut on capture</div>
+                  <p class="mt-0.5 text-xs leading-snug text-white/45">
+                    Turn the Tutorial Center tab on the shooting screen on or off.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  id="settings-tutorial-center-q-toggle"
+                  class="relative h-7 w-11 shrink-0 rounded-full bg-blue-500 transition"
+                  aria-pressed="true"
+                  aria-label="Toggle question mark Tutorial Center shortcut"
+                >
+                  <span
+                    id="settings-tutorial-center-q-thumb"
+                    class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white transition-transform shadow-sm"
+                  ></span>
+                </button>
+              </label>
+              <div class="flex flex-col gap-2">
+                <button
+                  type="button"
+                  id="settings-tutorial-preview-open"
+                  class="group relative aspect-video max-h-[42vh] w-full shrink-0 overflow-hidden rounded-xl border border-white/12 bg-black text-left shadow-inner outline-none ring-offset-2 ring-offset-black focus-visible:ring-2 focus-visible:ring-blue-400/80 disabled:pointer-events-none disabled:opacity-45"
+                  aria-describedby="settings-tutorial-preview-meta"
+                >
+                  <video
+                    id="settings-tutorial-video-preview"
+                    class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                    muted
+                    playsinline
+                    preload="none"
+                    poster="../image.png"
+                    aria-hidden="true"
+                  ></video>
+                  <div
+                    class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-t from-black/65 via-black/25 to-black/40 transition group-hover:from-black/55 group-hover:via-black/20"
+                  >
+                    <span
+                      class="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-lg text-black shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition group-hover:scale-105"
+                      aria-hidden="true"
+                    >
+                      ▶
+                    </span>
+                    <span class="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/90">
+                      Fullscreen
+                    </span>
+                  </div>
+                </button>
+                <div class="text-center">
+                  <div id="settings-tutorial-preview-title" class="text-[13px] font-semibold leading-snug text-white">
+                    —
+                  </div>
+                  <p id="settings-tutorial-preview-meta" class="mt-1 text-[11px] text-white/45"></p>
+                </div>
+              </div>
+              <div class="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <div class="text-[13px] font-semibold text-white/90">New user onboarding</div>
+                <p class="mt-1 text-xs leading-relaxed text-white/45">
+                  Replay the product guides shown before capture: Falcon Hall setup and capture overlays, or the Chameleon
+                  multi-step carousel — plus precautions where applicable.
+                </p>
+                <button
+                  type="button"
+                  id="settings-review-onboarding"
+                  class="mt-3 w-full rounded-lg border border-blue-400/45 bg-blue-500/20 px-3 py-2 text-left text-xs font-semibold text-blue-100 transition hover:bg-blue-500/30"
+                >
+                  Review onboarding tutorial and precautions
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -510,6 +881,14 @@
     >
       <h3 class="border-b border-slate-200 pb-1.5 text-sm font-bold">原型控制</h3>
       <p class="mb-2 mt-1 text-xs text-slate-500">重放引导流程并重置本地状态。</p>
+      <label class="mb-2 block text-xs font-medium text-slate-700">设备分支（持久化）</label>
+      <select
+        id="proto-device-family"
+        class="mb-3 w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-800"
+      >
+        <option value="falcon">Falcon (calibration → setup → UI hints)</option>
+        <option value="chameleon">变色龙（四步：中线 / 高度 / 界面 / 录制，末页可不再展示）</option>
+      </select>
       <div class="space-y-1.5">
         <button
           type="button"
@@ -541,14 +920,14 @@
         </button>
         <button
           type="button"
-          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); location.reload();"
+          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP); localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES); localStorage.removeItem('tw_proto_falcon_skip_setup_tips_v1'); localStorage.removeItem('tw_proto_falcon_skip_ui_hints_v1'); location.reload();"
           class="w-full rounded border border-slate-200 py-1.5 text-xs text-slate-600"
         >
           清除本页 localStorage
         </button>
       </div>
       <p class="mt-2 text-[10px] leading-tight text-slate-400">
-        多页版旧原型已另存为 <code>index.legacy.html</code>。本页使用 <code>npm run dev</code> 即 Vite 预览。
+        双设备对照说明见 <code>DEVICE_ONBOARDING_MATRIX.md</code>。多页旧原型：<code>index.legacy.html</code>。预览：<code>npm run dev</code>。
       </p>
     </div>
 
@@ -560,7 +939,9 @@
       const LS_TUTORIAL_AUTO_OPENED = "tw_proto_tutorial_auto_opened_v1";
       const LS_ONBOARDING_DONE = "tw_proto_onboarding_done_v1";
       const LS_GUIDES_HIDDEN = "tw_proto_guides_hidden_v1";
-      const LS_RETURNING_GUIDE_PROMPT = "tw_proto_returning_guide_prompt_v1";
+      const LS_DEVICE_FAMILY = "tw_proto_device_family_v1";
+      const LS_CHAMELEON_CAROUSEL_SKIP = "tw_proto_chameleon_carousel_skip_v1";
+      const LS_FALCON_SKIP_AUTO_GUIDES = "tw_proto_falcon_skip_auto_guides_v1";
 
       let state = {
         isHardwareCalibrated: false,
@@ -569,8 +950,10 @@
         isGuideFlowManual: false,
         hallGuideStep: 0,
         guideStep: 0,
+        chameleonStep: 0,
         timerInterval: null,
         seconds: 0,
+        settingsTab: "general",
       };
 
       const uiGuideOverlay = document.getElementById("ui-guide-overlay");
@@ -583,8 +966,7 @@
       const guideLine = document.getElementById("guide-line");
       const guideLineHead = document.getElementById("guide-line-head");
       const guideNever = document.getElementById("guide-never");
-      const hallGuideNever = document.getElementById("hall-guide-never");
-      const hallGuideNeverWrap = document.getElementById("hall-guide-never-wrap");
+      const guideNeverWrap = document.getElementById("guide-never-wrap");
 
       const calibrationModal = document.getElementById("calibration-modal");
       const calibrationContent = document.getElementById("calibration-content");
@@ -604,6 +986,11 @@
       const returningChoiceSkipBtn = document.getElementById("returning-choice-skip");
       const returningChoiceViewBtn = document.getElementById("returning-choice-view");
       const tutorialModal = document.getElementById("tutorial-modal");
+      const tutorialList = document.getElementById("tutorial-list");
+      const tutorialPlayerModal = document.getElementById("tutorial-player-modal");
+      const tutorialPlayerTitle = document.getElementById("tutorial-player-title");
+      const tutorialPlayerDuration = document.getElementById("tutorial-player-duration");
+      const tutorialPlayerClose = document.getElementById("tutorial-player-close");
       const tutorialFloatWindow = document.getElementById("tutorial-float-window");
       const tutorialFloatTitle = document.getElementById("tutorial-float-title");
       const tutorialFloatCloseBtn = document.getElementById("tutorial-float-close");
@@ -616,6 +1003,17 @@
       const btnSettings = document.getElementById("btn-settings");
       const btnRecord = document.getElementById("btn-record");
       const recordInner = document.getElementById("record-inner");
+      const protoDeviceFamily = document.getElementById("proto-device-family");
+      const deviceBrandName = document.getElementById("device-brand-name");
+      const chameleonCarousel = document.getElementById("chameleon-carousel");
+      const chameleonStepText = document.getElementById("chameleon-step-text");
+      const chameleonStepIndicator = document.getElementById("chameleon-step-indicator");
+      const chameleonSkipBtn = document.getElementById("chameleon-skip");
+      const chameleonSkipFooterBtn = document.getElementById("chameleon-skip-footer");
+      const chameleonPrevBtn = document.getElementById("chameleon-prev");
+      const chameleonNextBtn = document.getElementById("chameleon-next");
+      const chameleonNeverWrap = document.getElementById("chameleon-never-wrap");
+      const chameleonNever = document.getElementById("chameleon-never");
 
       const guideSteps = [
         {
@@ -629,6 +1027,37 @@
           desc: "Tap again to stop. This clip will be saved automatically.",
         },
       ];
+      const tutorialCatalog = [
+        {
+          id: "live-record",
+          title: "Live streaming and recording workflow",
+          duration: "02:15",
+          desc: "Learn how to start live streaming and recording with the right sequence.",
+          category: "onboarding",
+          entryPolicy: "always",
+          displayMode: "fullscreen",
+          poster: "../image.png",
+          title: "Hall setup and alignment checklist",
+          duration: "01:40",
+          desc: "Review center-line alignment and setup height before recording.",
+          category: "setup",
+          entryPolicy: "afterCalibration",
+          displayMode: "fullscreen",
+          enabled: true,
+          priority: 90,
+          targetUserType: "new",
+        },
+      ];
+      let activeTutorialId = null;
+
+      /** Four steps: center line → height → left UI (modes) → record (skip redundant generic “recommended height” opener) */
+      const chameleonCarouselSteps = [
+        "Align the camera with the center line to ensure full court coverage.",
+        "Place the camera on a tripod at 2.2 m or higher for the best perspective. Confirm positioning before recording.",
+        "Switch video modes from the icons along the left.",
+        "Tap the red button to start recording.",
+      ];
+
       const hallGuideSteps = [
         {
           title: "Align with the center line first",
@@ -641,6 +1070,34 @@
           image: "../image-257628d3-f8ed-4e17-a147-014d124b481a.png",
         },
       ];
+      function getDeviceFamily() {
+        return localStorage.getItem(LS_DEVICE_FAMILY) || "falcon";
+      }
+      function isChameleonDevice() {
+        return getDeviceFamily() === "chameleon";
+      }
+      function isFalconDevice() {
+        return getDeviceFamily() === "falcon";
+      }
+      function migrateLegacyNeverFlag() {
+        if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") return;
+        if (localStorage.getItem(LS_NEVER) === "1") {
+          localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
+          return;
+        }
+        var oldSetup = "tw_proto_falcon_skip_setup_tips_v1";
+        var oldUi = "tw_proto_falcon_skip_ui_hints_v1";
+        if (localStorage.getItem(oldSetup) === "1" || localStorage.getItem(oldUi) === "1") {
+          localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
+        }
+      }
+      function applyDeviceFamilyUI() {
+        var family = getDeviceFamily();
+        if (protoDeviceFamily) protoDeviceFamily.value = family;
+        if (deviceBrandName) {
+          deviceBrandName.textContent = family === "chameleon" ? "变色龙" : "Falcon";
+        }
+      }
       function isNewUser() {
         return localStorage.getItem(LS_ONBOARDING_DONE) !== "1";
       }
@@ -657,12 +1114,13 @@
           localStorage.removeItem(LS_GUIDES_HIDDEN);
         }
       }
-      function syncGuideNeverState(checked) {
-        if (guideNever) guideNever.checked = !!checked;
-        if (hallGuideNever) hallGuideNever.checked = !!checked;
+      function syncUnifiedNeverCheckbox() {
+        if (!guideNever) return;
+        guideNever.checked =
+          guidesHidden() || localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1";
       }
       function shouldPromptReturningGuideChoice() {
-        return !isNewUser() && !guidesHidden() && !state.isGuideFlowManual && localStorage.getItem(LS_RETURNING_GUIDE_PROMPT) === "1";
+        return false;
       }
       function openReturningGuideChoice() {
         if (!returningGuideChoiceModal) return;
@@ -703,10 +1161,18 @@
         guideNextBtn.textContent = stepIndex === guideSteps.length - 1 ? "Done" : "Next";
         const allowSkipOrOptOut = !isNewUser() || state.isGuideFlowManual;
         if (guideSkipBtn) guideSkipBtn.classList.toggle("hidden", !allowSkipOrOptOut);
+        var isLastStep = stepIndex === guideSteps.length - 1;
+        if (guideNeverWrap) {
+          guideNeverWrap.classList.toggle("hidden", !isLastStep);
+        }
         if (guideNever) {
           guideNever.disabled = false;
           guideNever.closest("label")?.classList.remove("opacity-40");
-          syncGuideNeverState(guidesHidden());
+          if (isLastStep) {
+            syncUnifiedNeverCheckbox();
+          } else {
+            guideNever.checked = false;
+          }
         }
 
         const tx = tRect.left - cRect.left + tRect.width / 2;
@@ -735,10 +1201,7 @@
         hallGuideOkBtn.classList.remove("hidden");
         const allowSkipOrOptOut = !isNewUser() || state.isGuideFlowManual;
         if (hallGuideSkipBtn) hallGuideSkipBtn.classList.toggle("hidden", !allowSkipOrOptOut);
-        if (hallGuideNeverWrap) hallGuideNeverWrap.classList.remove("hidden");
-        if (hallGuideNever) hallGuideNever.disabled = false;
         if (hallGuideOkBtn) hallGuideOkBtn.classList.toggle("hidden", stepIndex < hallGuideSteps.length - 1);
-        syncGuideNeverState(guidesHidden());
       }
       function showHallGuideModal() {
         // Prevent UI guide and Hall guide from stacking
@@ -751,12 +1214,15 @@
       }
       function completeHallGuideAndRecord() {
         closeHallGuideModal();
-        if (shouldAutoShowGuides()) {
-          startUIGuide();
-        }
+        if (!shouldAutoShowGuides()) return;
+        if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") return;
+        if (localStorage.getItem(LS_DONE) === "1") return;
+        startUIGuide();
       }
 
       function checkAndShowGuide() {
+        if (!isFalconDevice()) return;
+        migrateLegacyNeverFlag();
         if (guidesHidden() && !state.isGuideFlowManual) {
           return;
         }
@@ -770,6 +1236,9 @@
           return;
         }
         if (!shouldAutoShowGuides()) return;
+        if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") {
+          return;
+        }
         if (localStorage.getItem(LS_NEVER) === "1") {
           return;
         }
@@ -797,10 +1266,9 @@
       }
 
       function completeGuide() {
-        const never = (guideNever && guideNever.checked) || (hallGuideNever && hallGuideNever.checked);
-        if (never) {
+        if (guideNever && guideNever.checked) {
+          localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
           setGuidesHidden(true);
-          localStorage.setItem(LS_NEVER, "1");
         } else {
           setGuidesHidden(false);
           localStorage.setItem(LS_DONE, "1");
@@ -814,10 +1282,9 @@
 
       function skipUIGuide() {
         if (isNewUser() && !state.isGuideFlowManual) return;
-        const never = (guideNever && guideNever.checked) || (hallGuideNever && hallGuideNever.checked);
-        if (never) {
+        if (guideNever && guideNever.checked) {
+          localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
           setGuidesHidden(true);
-          localStorage.setItem(LS_NEVER, "1");
         } else {
           setGuidesHidden(false);
           localStorage.setItem(LS_DONE, "1");
@@ -844,37 +1311,54 @@
         btnRecord.addEventListener("click", handleRecordClick);
         bindDraggableTutorialHandle();
         if (btnSettings) btnSettings.addEventListener("click", toggleSettingsPanel);
+        var settingsPanelBack = document.getElementById("settings-panel-back");
+        var settingsPanelDone = document.getElementById("settings-panel-done");
+        var settingsReviewOnboarding = document.getElementById("settings-review-onboarding");
+        if (settingsPanelBack) settingsPanelBack.addEventListener("click", closeSettingsPanel);
+        if (settingsPanelDone) settingsPanelDone.addEventListener("click", closeSettingsPanel);
+        if (settingsReviewOnboarding) settingsReviewOnboarding.addEventListener("click", launchOnboardingGuidesReplay);
+        var settingsTutorialPreviewOpen = document.getElementById("settings-tutorial-preview-open");
+        if (settingsTutorialPreviewOpen) {
+          settingsTutorialPreviewOpen.addEventListener("click", function () {
+            if (settingsTutorialPreviewOpen.disabled) return;
+            var id = settingsTutorialPreviewOpen.getAttribute("data-tutorial-id");
+            if (!id) return;
+            closeTutorial();
+            closeSettingsPanel();
+            openTutorialPlayer(id);
+          });
+        }
+        document.querySelectorAll(".settings-nav-item").forEach(function (navBtn) {
+          navBtn.addEventListener("click", function () {
+            var tab = navBtn.getAttribute("data-settings-tab");
+            if (tab) setSettingsTab(tab);
+          });
+        });
         if (tutorialFloatCloseBtn) {
           tutorialFloatCloseBtn.addEventListener("click", function () {
             tutorialFloatWindow.classList.add("hidden");
           });
         }
-        bindDraggableFloatWindow();
         if (settingsTutorialEntryToggle) {
           settingsTutorialEntryToggle.addEventListener("click", function () {
             var isOn = settingsTutorialEntryToggle.getAttribute("aria-pressed") !== "true";
             setTutorialEntryEnabled(isOn);
           });
         }
-        if (guideNever) {
-          guideNever.addEventListener("change", function () {
-            syncGuideNeverState(guideNever.checked);
-          });
-        }
-        if (hallGuideNever) {
-          hallGuideNever.addEventListener("change", function () {
-            syncGuideNeverState(hallGuideNever.checked);
+        var settingsTutorialCenterQToggle = document.getElementById("settings-tutorial-center-q-toggle");
+        if (settingsTutorialCenterQToggle) {
+          settingsTutorialCenterQToggle.addEventListener("click", function () {
+            var isOn = settingsTutorialCenterQToggle.getAttribute("aria-pressed") !== "true";
+            setTutorialEntryEnabled(isOn);
           });
         }
         if (tutorialModal) {
           var btnOpenAllGuides = document.getElementById("btn-open-all-guides");
           if (btnOpenAllGuides) {
-            btnOpenAllGuides.addEventListener("click", function () {
-              closeTutorial();
-              replayAllGuidesWithoutCalibration();
-            });
+            btnOpenAllGuides.addEventListener("click", launchOnboardingGuidesReplay);
           }
         }
+        if (tutorialPlayerClose) tutorialPlayerClose.addEventListener("click", closeTutorialPlayer);
         if (guideSkipBtn) guideSkipBtn.addEventListener("click", skipUIGuide);
         if (hallGuideOkBtn) {
           hallGuideOkBtn.addEventListener("click", completeHallGuideAndRecord);
@@ -894,22 +1378,51 @@
           });
         }
         if (returningChoiceSkipBtn) {
-          returningChoiceSkipBtn.addEventListener("click", function () {
-            setGuidesHidden(true);
-            localStorage.setItem(LS_NEVER, "1");
-            localStorage.removeItem(LS_RETURNING_GUIDE_PROMPT);
-            closeReturningGuideChoice();
-          });
+          returningChoiceSkipBtn.addEventListener("click", closeReturningGuideChoice);
         }
         if (returningChoiceViewBtn) {
           returningChoiceViewBtn.addEventListener("click", function () {
-            localStorage.removeItem(LS_RETURNING_GUIDE_PROMPT);
             closeReturningGuideChoice();
-            showHallGuideModal();
+            openTutorial();
+          });
+        }
+        if (protoDeviceFamily) {
+          protoDeviceFamily.addEventListener("change", function () {
+            localStorage.setItem(LS_DEVICE_FAMILY, protoDeviceFamily.value);
+            location.reload();
+          });
+        }
+        if (chameleonSkipBtn) {
+          chameleonSkipBtn.addEventListener("click", skipChameleonCarousel);
+        }
+        if (chameleonSkipFooterBtn) {
+          chameleonSkipFooterBtn.addEventListener("click", skipChameleonCarousel);
+        }
+        if (chameleonPrevBtn) {
+          chameleonPrevBtn.addEventListener("click", function () {
+            if (state.chameleonStep > 0) {
+              state.chameleonStep -= 1;
+              renderChameleonStep();
+            }
+          });
+        }
+        if (chameleonNextBtn) {
+          chameleonNextBtn.addEventListener("click", function () {
+            var last = chameleonCarouselSteps.length - 1;
+            if (state.chameleonStep < last) {
+              state.chameleonStep += 1;
+              renderChameleonStep();
+            } else {
+              finishChameleonCarousel();
+            }
           });
         }
         document.addEventListener("keydown", function (e) {
           if (e.key === "Escape") {
+            if (chameleonCarousel && !chameleonCarousel.classList.contains("hidden")) {
+              skipChameleonCarousel();
+              return;
+            }
             if (!uiGuideOverlay.classList.contains("hidden") && !isNewUser()) skipUIGuide();
             if (!calibrationModal.classList.contains("hidden")) closeCalibration();
             if (!tutorialModal.classList.contains("hidden")) closeTutorial();
@@ -918,6 +1431,7 @@
       }
 
       function handleRecordClick() {
+        if (chameleonCarousel && !chameleonCarousel.classList.contains("hidden")) return;
         if (!uiGuideOverlay.classList.contains("hidden")) return;
         if (!hallGuideModal.classList.contains("hidden")) return;
         if (!calibrationModal.classList.contains("hidden")) return;
@@ -970,26 +1484,73 @@
             if (calibCountdown) calibCountdown.textContent = "3s";
             if (shouldPromptReturningGuideChoice()) {
               openReturningGuideChoice();
-            } else if (shouldAutoShowGuides()) {
-              showHallGuideModal();
+            } else if (isFalconDevice() && shouldAutoShowGuides()) {
+              if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) !== "1") {
+                showHallGuideModal();
+              }
             }
           }, 350);
         }, 3000);
       }
       function maybeRunAutoCalibrationFlow() {
+        if (!isFalconDevice()) return;
         if (state.hasAutoCalibrationFlowRun) return;
         state.hasAutoCalibrationFlowRun = true;
         showCalibrationModal();
         startCalibration();
       }
       function replayAllGuidesWithoutCalibration() {
+        if (!isFalconDevice()) return;
         state.isGuideFlowManual = true;
         state.hasAutoCalibrationFlowRun = true;
-        if (settingsPanel) settingsPanel.classList.add("hidden");
+        if (settingsPanel) {
+          settingsPanel.classList.add("hidden");
+          settingsPanel.classList.remove("flex");
+        }
         closeGuideUI();
         closeHallGuideModal();
         closeTutorial();
         showHallGuideModal();
+      }
+
+      function showChameleonCarousel() {
+        if (!chameleonCarousel || !isChameleonDevice()) return;
+        state.chameleonStep = 0;
+        if (chameleonNever) chameleonNever.checked = false;
+        chameleonCarousel.classList.remove("hidden");
+        chameleonCarousel.classList.add("flex");
+        renderChameleonStep();
+      }
+      function closeChameleonCarousel() {
+        if (!chameleonCarousel) return;
+        chameleonCarousel.classList.add("hidden");
+        chameleonCarousel.classList.remove("flex");
+      }
+      function renderChameleonStep() {
+        var total = chameleonCarouselSteps.length;
+        var idx = state.chameleonStep;
+        if (chameleonStepText) chameleonStepText.textContent = chameleonCarouselSteps[idx] || "";
+        if (chameleonStepIndicator) chameleonStepIndicator.textContent = idx + 1 + "/" + total;
+        if (chameleonNeverWrap) chameleonNeverWrap.classList.toggle("hidden", idx !== total - 1);
+        if (chameleonPrevBtn) chameleonPrevBtn.disabled = idx === 0;
+        if (chameleonNextBtn) {
+          chameleonNextBtn.textContent = idx >= total - 1 ? "Done" : "Next";
+          chameleonNextBtn.setAttribute("aria-label", idx >= total - 1 ? "Finish guide" : "Next step");
+        }
+      }
+      function finishChameleonCarousel() {
+        if (chameleonNever && chameleonNever.checked) {
+          localStorage.setItem(LS_CHAMELEON_CAROUSEL_SKIP, "1");
+        }
+        closeChameleonCarousel();
+        maybeAutoOpenTutorialList();
+        localStorage.setItem(LS_ONBOARDING_DONE, "1");
+      }
+
+      function skipChameleonCarousel() {
+        closeChameleonCarousel();
+        maybeAutoOpenTutorialList();
+        localStorage.setItem(LS_ONBOARDING_DONE, "1");
       }
 
       function toggleRecording() {
@@ -1031,27 +1592,80 @@
         document.getElementById("recording-time").textContent = "00:00:00";
       }
 
+      function launchOnboardingGuidesReplay() {
+        closeSettingsPanel();
+        closeTutorial();
+        if (isChameleonDevice()) {
+          state.chameleonStep = 0;
+          showChameleonCarousel();
+        } else {
+          replayAllGuidesWithoutCalibration();
+        }
+      }
+      function openSettingsTutorialCenter() {
+        closeTutorial();
+        closeTutorialPlayer();
+        if (!settingsPanel) return;
+        settingsPanel.classList.remove("hidden");
+        settingsPanel.classList.add("flex");
+        setSettingsTab("tutorial");
+      }
       function openTutorial() {
+        closeSettingsPanel();
+        renderTutorialList();
         tutorialModal.classList.remove("hidden");
-        requestAnimationFrame(function () {
-          tutorialModal.classList.remove("-translate-x-full");
-        });
+        tutorialModal.classList.add("flex");
       }
       function closeTutorial() {
-        tutorialModal.classList.add("-translate-x-full");
-        setTimeout(function () {
-          tutorialModal.classList.add("hidden");
-        }, 300);
+        tutorialModal.classList.add("hidden");
+        tutorialModal.classList.remove("flex");
+      }
+      function closeSettingsPanel() {
+        if (!settingsPanel) return;
+        settingsPanel.classList.add("hidden");
+        settingsPanel.classList.remove("flex");
+      }
+      function setSettingsTab(tab) {
+        state.settingsTab = tab;
+        ["general", "capture", "hardware", "tutorial"].forEach(function (id) {
+          var section = document.getElementById("settings-section-" + id);
+          var nav = document.getElementById("settings-nav-" + id);
+          var active = id === tab;
+          if (section) section.classList.toggle("hidden", !active);
+          if (nav) {
+            nav.classList.toggle("bg-white/15", active);
+            nav.classList.toggle("text-white", active);
+            nav.classList.toggle("text-white/55", !active);
+            nav.setAttribute("aria-current", active ? "page" : "false");
+          }
+        });
+        if (tab === "tutorial") renderTutorialList();
       }
       function toggleSettingsPanel() {
-        settingsPanel.classList.toggle("hidden");
+        if (!settingsPanel) return;
+        if (settingsPanel.classList.contains("hidden")) {
+          settingsPanel.classList.remove("hidden");
+          settingsPanel.classList.add("flex");
+          setSettingsTab(state.settingsTab || "general");
+        } else {
+          closeSettingsPanel();
+        }
       }
       function setTutorialEntryEnabled(isEnabled) {
-        if (!settingsTutorialEntryToggle || !btnTutorial) return;
-        settingsTutorialEntryToggle.setAttribute("aria-pressed", isEnabled ? "true" : "false");
-        settingsTutorialEntryToggle.classList.toggle("bg-blue-500", isEnabled);
-        settingsTutorialEntryToggle.classList.toggle("bg-slate-500", !isEnabled);
-        settingsTutorialEntryThumb.style.transform = isEnabled ? "translateX(20px)" : "translateX(0)";
+        if (!btnTutorial) return;
+        [
+          { toggle: settingsTutorialEntryToggle, thumb: settingsTutorialEntryThumb },
+          {
+            toggle: document.getElementById("settings-tutorial-center-q-toggle"),
+            thumb: document.getElementById("settings-tutorial-center-q-thumb"),
+          },
+        ].forEach(function (pair) {
+          if (!pair.toggle) return;
+          pair.toggle.setAttribute("aria-pressed", isEnabled ? "true" : "false");
+          pair.toggle.classList.toggle("bg-blue-500", isEnabled);
+          pair.toggle.classList.toggle("bg-slate-500", !isEnabled);
+          if (pair.thumb) pair.thumb.style.transform = isEnabled ? "translateX(16px)" : "translateX(0)";
+        });
         if (isEnabled) {
           btnTutorial.classList.remove("hidden");
         } else {
@@ -1063,87 +1677,91 @@
       }
       function showTutorialFloatWindow(videoKey) {
         if (!tutorialFloatWindow) return;
-        var titleMap = {
-          "live-record": "Live streaming and recording workflow",
-        };
-        tutorialFloatTitle.textContent = titleMap[videoKey] || "Tutorial playing";
+        var tutorial = tutorialCatalog.find(function (item) {
+          return item.id === videoKey;
+        });
+        tutorialFloatTitle.textContent = tutorial ? tutorial.title : "Tutorial playing";
         tutorialFloatWindow.classList.remove("hidden");
       }
-      function bindDraggableFloatWindow() {
-        if (!tutorialFloatWindow || !deviceEl || !floatCloseZone) return;
-        var drag = {
-          pointerId: null,
-          startX: 0,
-          startY: 0,
-          originLeft: 0,
-          originTop: 0,
-          moved: false,
-        };
-
-        function clamp(value, min, max) {
-          return Math.min(max, Math.max(min, value));
+      function getVisibleTutorials() {
+        var userType = isNewUser() ? "new" : "returning";
+        return tutorialCatalog
+          .filter(function (item) {
+            if (!item.enabled) return false;
+            if (isChameleonDevice() && item.entryPolicy === "afterCalibration") return false;
+            if (item.targetUserType === "all") return true;
+            if (item.targetUserType === "new") return userType === "new";
+            if (item.targetUserType === "returning") return userType === "returning";
+            return true;
+          })
+          .sort(function (a, b) {
+            return b.priority - a.priority;
+          });
+      }
+      function updateSettingsTutorialPreview() {
+        var btn = document.getElementById("settings-tutorial-preview-open");
+        var titleEl = document.getElementById("settings-tutorial-preview-title");
+        var metaEl = document.getElementById("settings-tutorial-preview-meta");
+        var videoEl = document.getElementById("settings-tutorial-video-preview");
+        if (!btn || !titleEl || !metaEl) return;
+        var tutorials = getVisibleTutorials();
+        var primary = tutorials[0];
+        if (!primary) {
+          btn.disabled = true;
+          btn.removeAttribute("data-tutorial-id");
+          titleEl.textContent = "No tutorials available";
+          metaEl.textContent = "";
+          return;
         }
-        function isOverCloseZone() {
-          if (floatCloseZone.classList.contains("hidden")) return false;
-          var fRect = tutorialFloatWindow.getBoundingClientRect();
-          var zRect = floatCloseZone.getBoundingClientRect();
-          var cx = fRect.left + fRect.width / 2;
-          var cy = fRect.top + fRect.height / 2;
-          return cx >= zRect.left && cx <= zRect.right && cy >= zRect.top && cy <= zRect.bottom;
+        btn.disabled = false;
+        btn.dataset.tutorialId = primary.id;
+        titleEl.textContent = primary.title;
+        metaEl.textContent = primary.duration + " · " + primary.category;
+        if (videoEl) {
+          videoEl.setAttribute("poster", primary.poster || "../image.png");
         }
-        function setFloatPosition(left, top) {
-          var maxLeft = deviceEl.clientWidth - tutorialFloatWindow.offsetWidth;
-          var maxTop = deviceEl.clientHeight - tutorialFloatWindow.offsetHeight;
-          tutorialFloatWindow.style.left = clamp(left, 0, maxLeft) + "px";
-          tutorialFloatWindow.style.top = clamp(top, 0, maxTop) + "px";
-          tutorialFloatWindow.style.right = "auto";
-          tutorialFloatWindow.style.bottom = "auto";
-        }
-
-        tutorialFloatWindow.addEventListener("pointerdown", function (e) {
-          if (e.target && e.target.id === "tutorial-float-close") return;
-          drag.pointerId = e.pointerId;
-          drag.startX = e.clientX;
-          drag.startY = e.clientY;
-          drag.originLeft = tutorialFloatWindow.offsetLeft;
-          drag.originTop = tutorialFloatWindow.offsetTop;
-          drag.moved = false;
-          floatCloseZone.classList.remove("hidden");
-          floatCloseZone.classList.add("flex");
-          tutorialFloatWindow.setPointerCapture(e.pointerId);
+      }
+      function renderTutorialList() {
+        if (!tutorialList) return;
+        var tutorials = getVisibleTutorials();
+        tutorialList.innerHTML = "";
+        tutorials.forEach(function (item) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "w-full rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-left transition hover:border-blue-400 hover:bg-slate-700";
+          btn.innerHTML =
+            '<div class="text-[13px] font-medium text-white">' +
+            item.title +
+            '</div><div class="mt-1 text-[11px] text-slate-300">' +
+            item.duration +
+            " · " +
+            item.category +
+            "</div>";
+          btn.addEventListener("click", function () {
+            closeTutorial();
+            closeSettingsPanel();
+            openTutorialPlayer(item.id);
+          });
+          tutorialList.appendChild(btn);
         });
-
-        tutorialFloatWindow.addEventListener("pointermove", function (e) {
-          if (drag.pointerId !== e.pointerId) return;
-          var dx = e.clientX - drag.startX;
-          var dy = e.clientY - drag.startY;
-          if (!drag.moved && Math.hypot(dx, dy) > 3) {
-            drag.moved = true;
-          }
-          if (drag.moved) {
-            setFloatPosition(drag.originLeft + dx, drag.originTop + dy);
-            floatCloseZone.classList.toggle("ring-2", isOverCloseZone());
-          }
+        updateSettingsTutorialPreview();
+      }
+      function openTutorialPlayer(tutorialId) {
+        var tutorial = tutorialCatalog.find(function (item) {
+          return item.id === tutorialId;
         });
-
-        tutorialFloatWindow.addEventListener("pointerup", function (e) {
-          if (drag.pointerId !== e.pointerId) return;
-          tutorialFloatWindow.releasePointerCapture(e.pointerId);
-          if (drag.moved && isOverCloseZone()) {
-            tutorialFloatWindow.classList.add("hidden");
-          }
-          drag.pointerId = null;
-          drag.moved = false;
-          floatCloseZone.classList.remove("flex", "ring-2");
-          floatCloseZone.classList.add("hidden");
-        });
-
-        tutorialFloatWindow.addEventListener("pointercancel", function () {
-          drag.pointerId = null;
-          drag.moved = false;
-          floatCloseZone.classList.remove("flex", "ring-2");
-          floatCloseZone.classList.add("hidden");
-        });
+        if (!tutorial || !tutorialPlayerModal) return;
+        activeTutorialId = tutorial.id;
+        tutorialPlayerTitle.textContent = tutorial.title;
+        tutorialPlayerDuration.textContent = tutorial.duration;
+        tutorialPlayerModal.classList.remove("hidden");
+        tutorialPlayerModal.classList.add("flex");
+      }
+      function closeTutorialPlayer() {
+        if (!tutorialPlayerModal) return;
+        tutorialPlayerModal.classList.add("hidden");
+        tutorialPlayerModal.classList.remove("flex");
       }
 
       function maybeAutoOpenTutorialList() {
@@ -1161,8 +1779,11 @@
         localStorage.removeItem(LS_NEVER);
         localStorage.removeItem(LS_GUIDES_HIDDEN);
         localStorage.removeItem(LS_CAL);
-        localStorage.removeItem(LS_RETURNING_GUIDE_PROMPT);
         localStorage.removeItem(LS_TUTORIAL_AUTO_OPENED);
+        localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
+        localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
+        localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
+        localStorage.removeItem("tw_proto_falcon_skip_ui_hints_v1");
         location.reload();
       }
 
@@ -1173,113 +1794,17 @@
         localStorage.setItem(LS_TUTORIAL_AUTO_OPENED, "1");
         if (hideGuides) {
           localStorage.setItem(LS_GUIDES_HIDDEN, "1");
-          localStorage.removeItem(LS_RETURNING_GUIDE_PROMPT);
         } else {
           localStorage.removeItem(LS_GUIDES_HIDDEN);
-          localStorage.setItem(LS_RETURNING_GUIDE_PROMPT, "1");
         }
         location.reload();
       }
 
       function bindDraggableTutorialHandle() {
         if (!btnTutorial || !deviceEl) return;
-        var drag = {
-          pointerId: null,
-          originLeft: 0,
-          originTop: 0,
-          startX: 0,
-          startY: 0,
-          moved: false,
-          suppressClick: false,
-        };
-
-        function clamp(value, min, max) {
-          return Math.min(max, Math.max(min, value));
-        }
-
-        function positionHandle(left, top) {
-          var maxLeft = deviceEl.clientWidth - btnTutorial.offsetWidth;
-          var maxTop = deviceEl.clientHeight - btnTutorial.offsetHeight;
-          btnTutorial.style.left = clamp(left, 0, maxLeft) + "px";
-          btnTutorial.style.top = clamp(top, 0, maxTop) + "px";
-        }
-        function isOverCloseZone() {
-          if (!floatCloseZone || floatCloseZone.classList.contains("hidden")) return false;
-          var bRect = btnTutorial.getBoundingClientRect();
-          var zRect = floatCloseZone.getBoundingClientRect();
-          var cx = bRect.left + bRect.width / 2;
-          var cy = bRect.top + bRect.height / 2;
-          return cx >= zRect.left && cx <= zRect.right && cy >= zRect.top && cy <= zRect.bottom;
-        }
-
-        function initHandlePosition() {
-          var initLeft = deviceEl.clientWidth - btnTutorial.offsetWidth - 2;
-          var initTop = Math.round(deviceEl.clientHeight * 0.34);
-          positionHandle(initLeft, initTop);
-        }
-
-        btnTutorial.addEventListener("pointerdown", function (e) {
-          drag.pointerId = e.pointerId;
-          drag.startX = e.clientX;
-          drag.startY = e.clientY;
-          drag.originLeft = btnTutorial.offsetLeft;
-          drag.originTop = btnTutorial.offsetTop;
-          drag.moved = false;
-          if (floatCloseZone) {
-            floatCloseZone.textContent = "Drag here to hide tutorial entry";
-            floatCloseZone.classList.remove("hidden");
-            floatCloseZone.classList.add("flex");
-          }
-          btnTutorial.setPointerCapture(e.pointerId);
+        btnTutorial.addEventListener("click", function () {
+          openSettingsTutorialCenter();
         });
-
-        btnTutorial.addEventListener("pointermove", function (e) {
-          if (drag.pointerId !== e.pointerId) return;
-          var dx = e.clientX - drag.startX;
-          var dy = e.clientY - drag.startY;
-          if (!drag.moved && Math.hypot(dx, dy) > 4) {
-            drag.moved = true;
-            drag.suppressClick = true;
-          }
-          if (drag.moved) {
-            positionHandle(drag.originLeft + dx, drag.originTop + dy);
-            if (floatCloseZone) {
-              floatCloseZone.classList.toggle("ring-2", isOverCloseZone());
-            }
-          }
-        });
-
-        btnTutorial.addEventListener("pointerup", function (e) {
-          if (drag.pointerId !== e.pointerId) return;
-          btnTutorial.releasePointerCapture(e.pointerId);
-          drag.pointerId = null;
-          if (drag.moved && isOverCloseZone()) {
-            setTutorialEntryEnabled(false);
-          } else if (drag.moved) {
-            var snapLeft = btnTutorial.offsetLeft < deviceEl.clientWidth / 2 ? 2 : deviceEl.clientWidth - btnTutorial.offsetWidth - 2;
-            positionHandle(snapLeft, btnTutorial.offsetTop);
-          }
-          if (floatCloseZone) {
-            floatCloseZone.classList.remove("flex", "ring-2");
-            floatCloseZone.classList.add("hidden");
-            floatCloseZone.textContent = "Drag here to close floating player";
-          }
-        });
-
-        btnTutorial.addEventListener("click", function (e) {
-          if (drag.suppressClick) {
-            e.preventDefault();
-            drag.suppressClick = false;
-            return;
-          }
-          openTutorial();
-        });
-
-        window.addEventListener("resize", function () {
-          positionHandle(btnTutorial.offsetLeft, btnTutorial.offsetTop);
-        });
-
-        initHandlePosition();
       }
 
       function resetPrototype() {
@@ -1290,19 +1815,28 @@
         closeCalibration();
         closeHallGuideModal();
         closeTutorial();
-        if (settingsPanel) settingsPanel.classList.add("hidden");
+        closeTutorialPlayer();
+        if (settingsPanel) {
+          settingsPanel.classList.add("hidden");
+          settingsPanel.classList.remove("flex");
+        }
         if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
         if (floatCloseZone) {
           floatCloseZone.classList.remove("flex", "ring-2");
           floatCloseZone.classList.add("hidden");
         }
         closeReturningGuideChoice();
+        closeChameleonCarousel();
+        state.chameleonStep = 0;
         setGuidesHidden(false);
         localStorage.removeItem(LS_DONE);
         localStorage.removeItem(LS_NEVER);
         localStorage.removeItem(LS_CAL);
         localStorage.removeItem(LS_ONBOARDING_DONE);
-        localStorage.removeItem(LS_RETURNING_GUIDE_PROMPT);
+        localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
+        localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
+        localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
+        localStorage.removeItem("tw_proto_falcon_skip_ui_hints_v1");
         state.isHardwareCalibrated = false;
         state.hasAutoCalibrationFlowRun = false;
         state.isGuideFlowManual = false;
@@ -1320,14 +1854,27 @@
       }
 
       document.addEventListener("DOMContentLoaded", function () {
+        migrateLegacyNeverFlag();
+        applyDeviceFamilyUI();
         if (localStorage.getItem(LS_CAL) === "1") {
           state.isHardwareCalibrated = true;
         }
         bindEvents();
+        renderTutorialList();
         setTutorialEntryEnabled(localStorage.getItem(LS_TUTORIAL_ENTRY) !== "0");
-        checkAndShowGuide();
-        maybeAutoOpenTutorialList();
-        setTimeout(maybeRunAutoCalibrationFlow, 900);
+        if (isChameleonDevice()) {
+          state.hasAutoCalibrationFlowRun = true;
+          checkAndShowGuide();
+          if (localStorage.getItem(LS_CHAMELEON_CAROUSEL_SKIP) !== "1") {
+            setTimeout(showChameleonCarousel, 500);
+          } else {
+            maybeAutoOpenTutorialList();
+          }
+        } else {
+          checkAndShowGuide();
+          maybeAutoOpenTutorialList();
+          setTimeout(maybeRunAutoCalibrationFlow, 900);
+        }
       });
     </script>
   </body>

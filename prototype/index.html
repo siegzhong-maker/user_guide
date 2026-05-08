@@ -402,16 +402,7 @@
           aria-hidden="true"
         ></div>
         <div class="relative z-10 flex h-full min-h-0 flex-col pointer-events-none">
-          <div class="pointer-events-auto flex shrink-0 items-center px-4 pb-2 pt-3">
-            <button
-              type="button"
-              id="chameleon-skip"
-              class="text-base font-medium text-white/95 drop-shadow-md [text-shadow:0_1px_3px_#000]"
-            >
-              Skip
-            </button>
-          </div>
-          <div class="pointer-events-auto flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-28 pt-2">
+          <div class="pointer-events-auto flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-28 pt-3">
             <div
               class="max-h-[42vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/15 bg-black/55 px-5 py-5 text-center shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-md sm:max-h-none"
             >
@@ -776,9 +767,48 @@
             <section id="settings-section-tutorial" class="settings-section hidden flex min-h-full flex-col gap-4">
               <div>
                 <h3 class="text-lg font-semibold">Tutorial Center</h3>
-                <p class="mt-1 text-xs leading-relaxed text-white/45">
+              </div>
+              <div id="settings-tutorial-featured-wrap" class="flex flex-col gap-4">
+                <p id="settings-tutorial-blurb" class="text-xs leading-relaxed text-white/45">
                   Featured tutorial — preview below; tap to watch fullscreen on top of the capture preview.
                 </p>
+                <div class="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    id="settings-tutorial-preview-open"
+                    class="group relative aspect-video max-h-[42vh] w-full shrink-0 overflow-hidden rounded-xl border border-white/12 bg-black text-left shadow-inner outline-none ring-offset-2 ring-offset-black focus-visible:ring-2 focus-visible:ring-blue-400/80 disabled:pointer-events-none disabled:opacity-45"
+                    aria-describedby="settings-tutorial-preview-meta"
+                  >
+                    <video
+                      id="settings-tutorial-video-preview"
+                      class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                      muted
+                      playsinline
+                      preload="none"
+                      poster="../image.png"
+                      aria-hidden="true"
+                    ></video>
+                    <div
+                      class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-t from-black/65 via-black/25 to-black/40 transition group-hover:from-black/55 group-hover:via-black/20"
+                    >
+                      <span
+                        class="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-lg text-black shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition group-hover:scale-105"
+                        aria-hidden="true"
+                      >
+                        ▶
+                      </span>
+                      <span class="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/90">
+                        Fullscreen
+                      </span>
+                    </div>
+                  </button>
+                  <div class="text-center">
+                    <div id="settings-tutorial-preview-title" class="text-[13px] font-semibold leading-snug text-white">
+                      —
+                    </div>
+                    <p id="settings-tutorial-preview-meta" class="mt-1 text-[11px] text-white/45"></p>
+                  </div>
+                </div>
               </div>
               <label class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
                 <div class="min-w-0">
@@ -800,43 +830,6 @@
                   ></span>
                 </button>
               </label>
-              <div class="flex flex-col gap-2">
-                <button
-                  type="button"
-                  id="settings-tutorial-preview-open"
-                  class="group relative aspect-video max-h-[42vh] w-full shrink-0 overflow-hidden rounded-xl border border-white/12 bg-black text-left shadow-inner outline-none ring-offset-2 ring-offset-black focus-visible:ring-2 focus-visible:ring-blue-400/80 disabled:pointer-events-none disabled:opacity-45"
-                  aria-describedby="settings-tutorial-preview-meta"
-                >
-                  <video
-                    id="settings-tutorial-video-preview"
-                    class="pointer-events-none absolute inset-0 h-full w-full object-cover"
-                    muted
-                    playsinline
-                    preload="none"
-                    poster="../image.png"
-                    aria-hidden="true"
-                  ></video>
-                  <div
-                    class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-t from-black/65 via-black/25 to-black/40 transition group-hover:from-black/55 group-hover:via-black/20"
-                  >
-                    <span
-                      class="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-lg text-black shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition group-hover:scale-105"
-                      aria-hidden="true"
-                    >
-                      ▶
-                    </span>
-                    <span class="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/90">
-                      Fullscreen
-                    </span>
-                  </div>
-                </button>
-                <div class="text-center">
-                  <div id="settings-tutorial-preview-title" class="text-[13px] font-semibold leading-snug text-white">
-                    —
-                  </div>
-                  <p id="settings-tutorial-preview-meta" class="mt-1 text-[11px] text-white/45"></p>
-                </div>
-              </div>
               <div class="rounded-xl border border-white/10 bg-white/[0.04] p-3">
                 <div class="text-[13px] font-semibold text-white/90">New user onboarding</div>
                 <p class="mt-1 text-xs leading-relaxed text-white/45">
@@ -903,7 +896,7 @@
         </button>
         <button
           type="button"
-          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP); localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES); localStorage.removeItem('tw_proto_falcon_skip_setup_tips_v1'); localStorage.removeItem('tw_proto_falcon_skip_ui_hints_v1'); location.reload();"
+          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP); localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES); localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN); localStorage.removeItem('tw_proto_falcon_skip_setup_tips_v1'); localStorage.removeItem('tw_proto_falcon_skip_ui_hints_v1'); location.reload();"
           class="w-full rounded border border-slate-200 py-1.5 text-xs text-slate-600"
         >
           清除本页 localStorage
@@ -925,6 +918,8 @@
       const LS_DEVICE_FAMILY = "tw_proto_device_family_v1";
       const LS_CHAMELEON_CAROUSEL_SKIP = "tw_proto_chameleon_carousel_skip_v1";
       const LS_FALCON_SKIP_AUTO_GUIDES = "tw_proto_falcon_skip_auto_guides_v1";
+      const LS_FALCON_INTRO_VIDEO_SEEN = "tw_proto_falcon_intro_video_seen_v1";
+      window.LS_FALCON_INTRO_VIDEO_SEEN = LS_FALCON_INTRO_VIDEO_SEEN;
 
       let state = {
         isHardwareCalibrated: false,
@@ -989,7 +984,6 @@
       const chameleonCarousel = document.getElementById("chameleon-carousel");
       const chameleonStepText = document.getElementById("chameleon-step-text");
       const chameleonStepIndicator = document.getElementById("chameleon-step-indicator");
-      const chameleonSkipBtn = document.getElementById("chameleon-skip");
       const chameleonSkipFooterBtn = document.getElementById("chameleon-skip-footer");
       const chameleonPrevBtn = document.getElementById("chameleon-prev");
       const chameleonNextBtn = document.getElementById("chameleon-next");
@@ -1010,23 +1004,30 @@
       ];
       const tutorialCatalog = [
         {
-          id: "live-record",
-          title: "Live streaming and recording workflow",
+          id: "falcon-intro",
+          title: "Get started with Falcon",
           duration: "02:15",
-          desc: "Learn how to start live streaming and recording with the right sequence.",
+          desc: "Overview before your first capture session.",
           category: "onboarding",
-          entryPolicy: "always",
+          entryPolicy: "beforeCalibration",
           displayMode: "fullscreen",
           poster: "../image.png",
+          enabled: true,
+          priority: 100,
+          targetUserType: "new",
+        },
+        {
+          id: "hall-setup",
           title: "Hall setup and alignment checklist",
           duration: "01:40",
           desc: "Review center-line alignment and setup height before recording.",
           category: "setup",
           entryPolicy: "afterCalibration",
           displayMode: "fullscreen",
+          poster: "../image.png",
           enabled: true,
           priority: 90,
-          targetUserType: "new",
+          targetUserType: "all",
         },
       ];
       let activeTutorialId = null;
@@ -1077,6 +1078,15 @@
         if (protoDeviceFamily) protoDeviceFamily.value = family;
         if (deviceBrandName) {
           deviceBrandName.textContent = family === "chameleon" ? "变色龙" : "Falcon";
+        }
+        var featuredWrap = document.getElementById("settings-tutorial-featured-wrap");
+        if (featuredWrap) {
+          featuredWrap.classList.toggle("hidden", family === "chameleon");
+        }
+        var tutorialBlurb = document.getElementById("settings-tutorial-blurb");
+        if (tutorialBlurb) {
+          tutorialBlurb.textContent =
+            "Featured tutorial — preview below; tap to watch fullscreen on top of the capture preview.";
         }
       }
       function isNewUser() {
@@ -1207,7 +1217,7 @@
         if (guidesHidden() && !state.isGuideFlowManual) {
           return;
         }
-        if (isNewUser() && !state.hasAutoCalibrationFlowRun && !state.isGuideFlowManual) {
+        if (!state.hasAutoCalibrationFlowRun && !state.isGuideFlowManual) {
           return;
         }
         if (!calibrationModal.classList.contains("hidden")) {
@@ -1367,9 +1377,6 @@
             location.reload();
           });
         }
-        if (chameleonSkipBtn) {
-          chameleonSkipBtn.addEventListener("click", skipChameleonCarousel);
-        }
         if (chameleonSkipFooterBtn) {
           chameleonSkipFooterBtn.addEventListener("click", skipChameleonCarousel);
         }
@@ -1398,6 +1405,10 @@
               skipChameleonCarousel();
               return;
             }
+            if (tutorialPlayerModal && !tutorialPlayerModal.classList.contains("hidden")) {
+              closeTutorialPlayer();
+              return;
+            }
             if (!uiGuideOverlay.classList.contains("hidden") && !isNewUser()) skipUIGuide();
             if (!calibrationModal.classList.contains("hidden")) closeCalibration();
             if (!tutorialModal.classList.contains("hidden")) closeTutorial();
@@ -1407,6 +1418,7 @@
 
       function handleRecordClick() {
         if (chameleonCarousel && !chameleonCarousel.classList.contains("hidden")) return;
+        if (tutorialPlayerModal && !tutorialPlayerModal.classList.contains("hidden")) return;
         if (!uiGuideOverlay.classList.contains("hidden")) return;
         if (!hallGuideModal.classList.contains("hidden")) return;
         if (!calibrationModal.classList.contains("hidden")) return;
@@ -1654,11 +1666,11 @@
         tutorialFloatWindow.classList.remove("hidden");
       }
       function getVisibleTutorials() {
+        if (isChameleonDevice()) return [];
         var userType = isNewUser() ? "new" : "returning";
         return tutorialCatalog
           .filter(function (item) {
             if (!item.enabled) return false;
-            if (isChameleonDevice() && item.entryPolicy === "afterCalibration") return false;
             if (item.targetUserType === "all") return true;
             if (item.targetUserType === "new") return userType === "new";
             if (item.targetUserType === "returning") return userType === "returning";
@@ -1669,6 +1681,7 @@
           });
       }
       function updateSettingsTutorialPreview() {
+        if (isChameleonDevice()) return;
         var btn = document.getElementById("settings-tutorial-preview-open");
         var titleEl = document.getElementById("settings-tutorial-preview-title");
         var metaEl = document.getElementById("settings-tutorial-preview-meta");
@@ -1730,13 +1743,27 @@
       }
       function closeTutorialPlayer() {
         if (!tutorialPlayerModal) return;
+        var closingId = activeTutorialId;
         tutorialPlayerModal.classList.add("hidden");
         tutorialPlayerModal.classList.remove("flex");
+        activeTutorialId = null;
+        if (
+          closingId === "falcon-intro" &&
+          isFalconDevice() &&
+          isNewUser() &&
+          localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1"
+        ) {
+          localStorage.setItem(LS_FALCON_INTRO_VIDEO_SEEN, "1");
+          maybeRunAutoCalibrationFlow();
+        }
       }
 
       function maybeAutoOpenTutorialList() {
         if (guidesHidden()) return;
         if (!isNewUser()) return;
+        if (isChameleonDevice()) return;
+        if (isFalconDevice()) return;
+        if (getVisibleTutorials().length === 0) return;
         if (localStorage.getItem(LS_TUTORIAL_ENTRY) === "0") return;
         setTimeout(function () {
           openTutorial();
@@ -1752,6 +1779,7 @@
         localStorage.removeItem(LS_TUTORIAL_AUTO_OPENED);
         localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
         localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
+        localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN);
         localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
         localStorage.removeItem("tw_proto_falcon_skip_ui_hints_v1");
         location.reload();
@@ -1759,13 +1787,20 @@
 
       function simulateReturningEntry(hideGuides) {
         localStorage.setItem(LS_ONBOARDING_DONE, "1");
-        localStorage.setItem(LS_DONE, "1");
-        localStorage.setItem(LS_CAL, "1");
         localStorage.setItem(LS_TUTORIAL_AUTO_OPENED, "1");
         if (hideGuides) {
           localStorage.setItem(LS_GUIDES_HIDDEN, "1");
+          localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
+          localStorage.setItem(LS_CHAMELEON_CAROUSEL_SKIP, "1");
+          localStorage.setItem(LS_DONE, "1");
+          localStorage.setItem(LS_CAL, "1");
         } else {
           localStorage.removeItem(LS_GUIDES_HIDDEN);
+          localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
+          localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
+          localStorage.removeItem(LS_NEVER);
+          localStorage.removeItem(LS_DONE);
+          localStorage.removeItem(LS_CAL);
         }
         location.reload();
       }
@@ -1805,6 +1840,7 @@
         localStorage.removeItem(LS_ONBOARDING_DONE);
         localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
         localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
+        localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN);
         localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
         localStorage.removeItem("tw_proto_falcon_skip_ui_hints_v1");
         state.isHardwareCalibrated = false;
@@ -1819,7 +1855,11 @@
         if (guideNever) guideNever.checked = false;
         setTimeout(function () {
           checkAndShowGuide();
-          maybeRunAutoCalibrationFlow();
+          if (isFalconDevice() && isNewUser() && localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1") {
+            openTutorialPlayer("falcon-intro");
+          } else if (isFalconDevice()) {
+            maybeRunAutoCalibrationFlow();
+          }
         }, 500);
       }
 
@@ -1835,15 +1875,20 @@
         if (isChameleonDevice()) {
           state.hasAutoCalibrationFlowRun = true;
           checkAndShowGuide();
-          if (localStorage.getItem(LS_CHAMELEON_CAROUSEL_SKIP) !== "1") {
+          if (localStorage.getItem(LS_CHAMELEON_CAROUSEL_SKIP) !== "1" && !guidesHidden()) {
             setTimeout(showChameleonCarousel, 500);
           } else {
             maybeAutoOpenTutorialList();
           }
         } else {
           checkAndShowGuide();
-          maybeAutoOpenTutorialList();
-          setTimeout(maybeRunAutoCalibrationFlow, 900);
+          if (isNewUser() && localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1") {
+            setTimeout(function () {
+              openTutorialPlayer("falcon-intro");
+            }, 400);
+          } else {
+            setTimeout(maybeRunAutoCalibrationFlow, 900);
+          }
         }
       });
     </script>

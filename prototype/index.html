@@ -694,23 +694,6 @@
                   <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-sm"></span>
                 </div>
               </div>
-              <label class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
-                <div class="min-w-0">
-                  <div class="text-[15px] font-medium">取景页「?」教程入口</div>
-                  <p class="mt-0.5 text-xs leading-snug text-white/45">关闭后拍摄界面不再显示教程快捷入口。</p>
-                </div>
-                <button
-                  type="button"
-                  id="settings-tutorial-entry-toggle"
-                  class="relative h-7 w-11 shrink-0 rounded-full bg-blue-500 transition"
-                  aria-pressed="true"
-                >
-                  <span
-                    id="settings-tutorial-entry-thumb"
-                    class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white transition-transform shadow-sm"
-                  ></span>
-                </button>
-              </label>
               <div class="mt-auto flex justify-center pt-6 pb-2">
                 <button type="button" class="text-sm font-medium text-red-400/95 hover:text-red-300">Restore Defaults</button>
               </div>
@@ -996,8 +979,6 @@
       const tutorialFloatCloseBtn = document.getElementById("tutorial-float-close");
       const floatCloseZone = document.getElementById("float-close-zone");
       const settingsPanel = document.getElementById("settings-panel");
-      const settingsTutorialEntryToggle = document.getElementById("settings-tutorial-entry-toggle");
-      const settingsTutorialEntryThumb = document.getElementById("settings-tutorial-entry-thumb");
       const deviceEl = document.getElementById("device");
       const btnTutorial = document.getElementById("btn-tutorial");
       const btnSettings = document.getElementById("btn-settings");
@@ -1339,12 +1320,6 @@
             tutorialFloatWindow.classList.add("hidden");
           });
         }
-        if (settingsTutorialEntryToggle) {
-          settingsTutorialEntryToggle.addEventListener("click", function () {
-            var isOn = settingsTutorialEntryToggle.getAttribute("aria-pressed") !== "true";
-            setTutorialEntryEnabled(isOn);
-          });
-        }
         var settingsTutorialCenterQToggle = document.getElementById("settings-tutorial-center-q-toggle");
         if (settingsTutorialCenterQToggle) {
           settingsTutorialCenterQToggle.addEventListener("click", function () {
@@ -1653,19 +1628,14 @@
       }
       function setTutorialEntryEnabled(isEnabled) {
         if (!btnTutorial) return;
-        [
-          { toggle: settingsTutorialEntryToggle, thumb: settingsTutorialEntryThumb },
-          {
-            toggle: document.getElementById("settings-tutorial-center-q-toggle"),
-            thumb: document.getElementById("settings-tutorial-center-q-thumb"),
-          },
-        ].forEach(function (pair) {
-          if (!pair.toggle) return;
-          pair.toggle.setAttribute("aria-pressed", isEnabled ? "true" : "false");
-          pair.toggle.classList.toggle("bg-blue-500", isEnabled);
-          pair.toggle.classList.toggle("bg-slate-500", !isEnabled);
-          if (pair.thumb) pair.thumb.style.transform = isEnabled ? "translateX(16px)" : "translateX(0)";
-        });
+        var centerToggle = document.getElementById("settings-tutorial-center-q-toggle");
+        var centerThumb = document.getElementById("settings-tutorial-center-q-thumb");
+        if (centerToggle) {
+          centerToggle.setAttribute("aria-pressed", isEnabled ? "true" : "false");
+          centerToggle.classList.toggle("bg-blue-500", isEnabled);
+          centerToggle.classList.toggle("bg-slate-500", !isEnabled);
+          if (centerThumb) centerThumb.style.transform = isEnabled ? "translateX(16px)" : "translateX(0)";
+        }
         if (isEnabled) {
           btnTutorial.classList.remove("hidden");
         } else {

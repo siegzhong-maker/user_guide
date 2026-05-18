@@ -71,7 +71,7 @@
         <span class="text-lg font-light tracking-widest text-white/25">模拟取景器画面</span>
       </div>
 
-      <!-- 顶栏：Skip / 计时 / 轻量状态 -->
+      <!-- 顶栏：Skip all / 计时 / 轻量状态 -->
       <div
         class="pointer-events-none absolute left-0 top-0 z-20 flex w-full items-center justify-between px-5 py-3"
       >
@@ -81,9 +81,9 @@
             id="guide-skip-text"
             onclick="skipUIGuide()"
             class="pointer-events-auto text-lg font-medium text-white opacity-0 drop-shadow-md transition-opacity [text-shadow:0_1px_3px_#000]"
-            aria-label="Skip UI guide"
+            aria-label="Skip all guides"
           >
-            Skip
+            Skip all
           </button>
         </div>
         <div class="flex w-1/3 justify-center">
@@ -256,7 +256,7 @@
         </div>
         <!-- Bottom aligned so Skip/Next row vertical center matches #btn-settings (left rail py-4 + h-10 / 2 minus half primary row ~1.75rem) -->
         <div
-          class="pointer-events-auto absolute right-6 z-10 flex w-[12.5rem] max-w-[min(12.5rem,calc(100%-5.5rem))] flex-col items-end gap-2 bottom-[calc(env(safe-area-inset-bottom,0px)+1.375rem)]"
+          class="pointer-events-auto absolute right-6 z-10 flex w-max min-w-0 max-w-[min(18rem,calc(100%-5.5rem))] flex-col items-end gap-2 bottom-[calc(env(safe-area-inset-bottom,0px)+1.375rem)]"
         >
           <div class="rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">
             <span id="guide-progress" aria-live="polite">1/2</span>
@@ -277,9 +277,9 @@
               type="button"
               id="guide-skip-btn"
               class="rounded-full bg-white/20 px-3 py-1.5 text-xs text-white/90 transition hover:bg-white/30"
-              aria-label="Skip guide"
+              aria-label="Skip all guides"
             >
-              Skip
+              Skip all
             </button>
             <button
               type="button"
@@ -316,15 +316,15 @@
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
           </div>
-          <h2 id="calib-title" class="mb-2 text-xl font-bold text-white">Calibrating...</h2>
+          <h2 id="calib-title" class="mb-2 text-xl font-bold text-white">Initializing...</h2>
           <div id="calibration-progress" class="mb-6 hidden">
             <div class="h-2 w-full overflow-hidden rounded-full bg-gray-700">
               <div
-                class="h-full w-0 bg-blue-500 transition-all duration-[5000ms] ease-linear"
+                class="h-full w-0 bg-blue-500 transition-all duration-[2000ms] ease-linear"
                 id="progress-bar"
               ></div>
             </div>
-            <span id="calib-countdown" class="hidden font-semibold text-blue-300">3s</span>
+            <span id="calib-countdown" class="hidden font-semibold text-blue-300">2s</span>
           </div>
           <div class="flex space-x-3 hidden" id="calibration-actions"></div>
         </div>
@@ -355,7 +355,7 @@
         </div>
 
         <div
-          class="pointer-events-auto absolute bottom-0 right-6 z-10 flex w-[12.5rem] max-w-[min(12.5rem,calc(100%-5.5rem))] flex-col items-end gap-2 [padding-bottom:max(0px,env(safe-area-inset-bottom,0px))]"
+          class="pointer-events-auto absolute bottom-0 right-6 z-10 flex w-max min-w-0 max-w-[min(18rem,calc(100%-5.5rem))] flex-col items-end gap-2 [padding-bottom:max(0px,env(safe-area-inset-bottom,0px))]"
         >
           <div id="hall-guide-progress" class="rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/90">1/2</div>
           <!-- Match UI guide: same reserved band above primary row -->
@@ -364,10 +364,10 @@
             <button
               type="button"
               id="hall-guide-skip"
-              class="hidden rounded-full bg-white/20 px-3 py-1.5 text-xs text-white/90 transition hover:bg-white/30"
-              aria-label="Skip Hall guidance"
+              class="rounded-full bg-white/20 px-3 py-1.5 text-xs text-white/90 transition hover:bg-white/30"
+              aria-label="Skip all guides"
             >
-              Skip
+              Skip all
             </button>
             <button
               type="button"
@@ -432,9 +432,9 @@
                 type="button"
                 id="chameleon-skip-footer"
                 class="rounded-full bg-white/20 px-3 py-1.5 text-xs text-white/90 transition hover:bg-white/30"
-                aria-label="Skip entire guide"
+                aria-label="Skip all guides"
               >
-                Skip
+                Skip all
               </button>
               <button
                 type="button"
@@ -568,6 +568,54 @@
         </div>
         <div class="h-16 rounded-md bg-slate-700/90 flex items-center justify-center text-[11px] text-white/90">Floating tutorial preview</div>
         <p class="mt-1 text-[10px] leading-snug text-white/70">Keep this window visible while operating the capture screen.</p>
+      </div>
+      <!-- Chameleon: floating entry from “?” — replay carousel or open settings -->
+      <div
+        id="chameleon-guide-float"
+        class="pointer-events-auto absolute right-4 top-12 z-[46] hidden w-[13.75rem] rounded-xl border border-emerald-400/25 bg-black/88 p-3 text-white shadow-xl backdrop-blur-md"
+        role="dialog"
+        aria-label="Shooting guide shortcuts"
+      >
+        <div class="mb-2 flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[12px] font-semibold text-white">Shooting guide</div>
+            <p class="mt-1 text-[10px] leading-snug text-white/65">
+              Replay the four-step tips or open Recording Settings.
+            </p>
+          </div>
+          <button
+            type="button"
+            id="chameleon-guide-float-close"
+            class="shrink-0 rounded px-1 text-lg leading-none text-white/55 hover:bg-white/10 hover:text-white"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <label
+          class="mb-2 flex cursor-pointer items-start gap-2 rounded-lg bg-white/[0.06] px-2 py-2"
+        >
+          <input
+            id="chameleon-guide-float-never"
+            type="checkbox"
+            class="mt-0.5 shrink-0 rounded border-white/40"
+          />
+          <span class="text-[10px] leading-snug text-white/75">Don't show this menu again · 不再展示此菜单</span>
+        </label>
+        <button
+          type="button"
+          id="chameleon-guide-float-replay"
+          class="w-full rounded-lg bg-emerald-400/95 px-3 py-2 text-center text-[11px] font-semibold text-emerald-950 transition hover:bg-emerald-300"
+        >
+          Replay guide
+        </button>
+        <button
+          type="button"
+          id="chameleon-guide-float-settings"
+          class="mt-2 w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-center text-[11px] font-medium text-white/90 transition hover:bg-white/15"
+        >
+          Recording settings…
+        </button>
       </div>
       <div
         id="float-close-zone"
@@ -810,10 +858,32 @@
                   </div>
                 </div>
               </div>
+              <div
+                id="settings-tutorial-chameleon-wrap"
+                class="hidden flex flex-col gap-3 rounded-xl border border-emerald-400/25 bg-emerald-500/[0.08] p-3"
+              >
+                <div class="text-[13px] font-semibold text-white/95">Chameleon shooting guide</div>
+                <p class="text-xs leading-relaxed text-white/50">
+                  Tap the <span class="font-semibold text-white/80">?</span> chip on the capture screen to open a floating
+                  menu — replay the four-step guide without leaving the viewfinder. If you check <span
+                    class="font-semibold text-white/70"
+                    >Don't show this menu again</span
+                  >
+                  in that menu, <span class="font-semibold text-white/80">?</span> will open Recording Settings → Tutorial
+                  Center directly next time.
+                </p>
+                <button
+                  type="button"
+                  id="settings-chameleon-replay-guide"
+                  class="w-full rounded-lg border border-emerald-400/40 bg-emerald-500/25 px-3 py-2 text-left text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/35"
+                >
+                  Replay shooting guide
+                </button>
+              </div>
               <label class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
                 <div class="min-w-0">
                   <div class="text-[15px] font-medium">“?” shortcut on capture</div>
-                  <p class="mt-0.5 text-xs leading-snug text-white/45">
+                  <p id="settings-tutorial-q-blurb" class="mt-0.5 text-xs leading-snug text-white/45">
                     Turn the Tutorial Center tab on the shooting screen on or off.
                   </p>
                 </div>
@@ -896,7 +966,7 @@
         </button>
         <button
           type="button"
-          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP); localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES); localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN); localStorage.removeItem('tw_proto_falcon_skip_setup_tips_v1'); localStorage.removeItem('tw_proto_falcon_skip_ui_hints_v1'); location.reload();"
+          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP); localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER); localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES); localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN); localStorage.removeItem('tw_proto_falcon_skip_setup_tips_v1'); localStorage.removeItem('tw_proto_falcon_skip_ui_hints_v1'); location.reload();"
           class="w-full rounded border border-slate-200 py-1.5 text-xs text-slate-600"
         >
           清除本页 localStorage
@@ -917,9 +987,11 @@
       const LS_GUIDES_HIDDEN = "tw_proto_guides_hidden_v1";
       const LS_DEVICE_FAMILY = "tw_proto_device_family_v1";
       const LS_CHAMELEON_CAROUSEL_SKIP = "tw_proto_chameleon_carousel_skip_v1";
+      const LS_CHAMELEON_GUIDE_FLOAT_NEVER = "tw_proto_chameleon_guide_float_never_v1";
       const LS_FALCON_SKIP_AUTO_GUIDES = "tw_proto_falcon_skip_auto_guides_v1";
       const LS_FALCON_INTRO_VIDEO_SEEN = "tw_proto_falcon_intro_video_seen_v1";
       window.LS_FALCON_INTRO_VIDEO_SEEN = LS_FALCON_INTRO_VIDEO_SEEN;
+      window.LS_CHAMELEON_GUIDE_FLOAT_NEVER = LS_CHAMELEON_GUIDE_FLOAT_NEVER;
 
       let state = {
         isHardwareCalibrated: false,
@@ -973,6 +1045,10 @@
       const tutorialFloatTitle = document.getElementById("tutorial-float-title");
       const tutorialFloatCloseBtn = document.getElementById("tutorial-float-close");
       const floatCloseZone = document.getElementById("float-close-zone");
+      const chameleonGuideFloat = document.getElementById("chameleon-guide-float");
+      const chameleonGuideFloatCloseBtn = document.getElementById("chameleon-guide-float-close");
+      const chameleonGuideFloatReplayBtn = document.getElementById("chameleon-guide-float-replay");
+      const chameleonGuideFloatSettingsBtn = document.getElementById("chameleon-guide-float-settings");
       const settingsPanel = document.getElementById("settings-panel");
       const deviceEl = document.getElementById("device");
       const btnTutorial = document.getElementById("btn-tutorial");
@@ -1061,6 +1137,25 @@
       function isFalconDevice() {
         return getDeviceFamily() === "falcon";
       }
+      function refreshChameleonTutorialEntryCopy() {
+        if (!isChameleonDevice()) return;
+        if (btnTutorial) {
+          if (localStorage.getItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER) === "1") {
+            btnTutorial.setAttribute("aria-label", "Open Tutorial Center in Recording Settings");
+            btnTutorial.title = "Tutorial Center (Settings)";
+          } else {
+            btnTutorial.setAttribute("aria-label", "Toggle shooting guide floating menu");
+            btnTutorial.title = "Shooting guide (floating menu)";
+          }
+        }
+        var qBlurb = document.getElementById("settings-tutorial-q-blurb");
+        if (qBlurb) {
+          qBlurb.textContent =
+            localStorage.getItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER) === "1"
+              ? "Show or hide the ? chip. After “don't show this menu again”, ? opens Recording Settings → Tutorial Center directly."
+              : "Show or hide the ? chip that opens the shooting-guide floating menu on capture.";
+        }
+      }
       function migrateLegacyNeverFlag() {
         if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") return;
         if (localStorage.getItem(LS_NEVER) === "1") {
@@ -1083,10 +1178,56 @@
         if (featuredWrap) {
           featuredWrap.classList.toggle("hidden", family === "chameleon");
         }
+        var chameleonTutorialWrap = document.getElementById("settings-tutorial-chameleon-wrap");
+        if (chameleonTutorialWrap) {
+          chameleonTutorialWrap.classList.toggle("hidden", family !== "chameleon");
+        }
         var tutorialBlurb = document.getElementById("settings-tutorial-blurb");
         if (tutorialBlurb) {
           tutorialBlurb.textContent =
             "Featured tutorial — preview below; tap to watch fullscreen on top of the capture preview.";
+        }
+        var qBlurb = document.getElementById("settings-tutorial-q-blurb");
+        if (family === "chameleon") {
+          refreshChameleonTutorialEntryCopy();
+        } else if (qBlurb) {
+          qBlurb.textContent =
+            "Turn the Tutorial Center tab on the shooting screen on or off.";
+        }
+        if (btnTutorial && family !== "chameleon") {
+          btnTutorial.setAttribute("aria-label", "Open Tutorial Center in Recording Settings");
+          btnTutorial.title = "Tutorial Center (Settings)";
+        }
+      }
+
+      function persistChameleonGuideFloatNeverIfChecked() {
+        var cb = document.getElementById("chameleon-guide-float-never");
+        if (cb && cb.checked) {
+          localStorage.setItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER, "1");
+          refreshChameleonTutorialEntryCopy();
+        }
+      }
+
+      function closeChameleonGuideFloat() {
+        persistChameleonGuideFloatNeverIfChecked();
+        if (chameleonGuideFloat) chameleonGuideFloat.classList.add("hidden");
+      }
+
+      function openChameleonGuideFloat() {
+        if (!chameleonGuideFloat || !isChameleonDevice()) return;
+        closeSettingsPanel();
+        if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
+        var cb = document.getElementById("chameleon-guide-float-never");
+        if (cb) cb.checked = false;
+        chameleonGuideFloat.classList.remove("hidden");
+      }
+
+      function toggleChameleonGuideFloat() {
+        if (!chameleonGuideFloat || !isChameleonDevice()) return;
+        if (!chameleonGuideFloat.classList.contains("hidden")) {
+          closeChameleonGuideFloat();
+        } else {
+          openChameleonGuideFloat();
         }
       }
       function isNewUser() {
@@ -1190,8 +1331,7 @@
         hallGuideProgress.textContent = stepIndex + 1 + "/" + hallGuideSteps.length;
         if (hallGuideNextBtn) hallGuideNextBtn.classList.toggle("hidden", stepIndex >= hallGuideSteps.length - 1);
         hallGuideOkBtn.classList.remove("hidden");
-        const allowSkipOrOptOut = !isNewUser() || state.isGuideFlowManual;
-        if (hallGuideSkipBtn) hallGuideSkipBtn.classList.toggle("hidden", !allowSkipOrOptOut);
+        if (hallGuideSkipBtn) hallGuideSkipBtn.classList.remove("hidden");
         if (hallGuideOkBtn) hallGuideOkBtn.classList.toggle("hidden", stepIndex < hallGuideSteps.length - 1);
       }
       function showHallGuideModal() {
@@ -1203,12 +1343,30 @@
       function closeHallGuideModal() {
         hallGuideModal.classList.add("hidden");
       }
-      function completeHallGuideAndRecord() {
-        closeHallGuideModal();
+      function proceedAfterHallGuideClosed() {
         if (!shouldAutoShowGuides()) return;
         if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") return;
         if (localStorage.getItem(LS_DONE) === "1") return;
         startUIGuide();
+      }
+
+      /** Skip Hall setup + all following capture UI guides; same persistence as last-step “don’t show again”. */
+      function skipAllGuidesFromHall() {
+        closeHallGuideModal();
+        closeGuideUI();
+        var wasManual = state.isGuideFlowManual;
+        state.isGuideFlowManual = false;
+        localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
+        setGuidesHidden(true);
+        if (isNewUser() || wasManual) {
+          localStorage.setItem(LS_ONBOARDING_DONE, "1");
+        }
+        syncUnifiedNeverCheckbox();
+      }
+
+      function completeHallGuideAndRecord() {
+        closeHallGuideModal();
+        proceedAfterHallGuideClosed();
       }
 
       function checkAndShowGuide() {
@@ -1330,6 +1488,28 @@
             tutorialFloatWindow.classList.add("hidden");
           });
         }
+        if (chameleonGuideFloatCloseBtn) {
+          chameleonGuideFloatCloseBtn.addEventListener("click", closeChameleonGuideFloat);
+        }
+        if (chameleonGuideFloatReplayBtn) {
+          chameleonGuideFloatReplayBtn.addEventListener("click", function () {
+            closeChameleonGuideFloat();
+            launchOnboardingGuidesReplay();
+          });
+        }
+        if (chameleonGuideFloatSettingsBtn) {
+          chameleonGuideFloatSettingsBtn.addEventListener("click", function () {
+            closeChameleonGuideFloat();
+            openSettingsTutorialCenter();
+          });
+        }
+        var settingsChameleonReplayGuide = document.getElementById("settings-chameleon-replay-guide");
+        if (settingsChameleonReplayGuide) {
+          settingsChameleonReplayGuide.addEventListener("click", function () {
+            closeSettingsPanel();
+            launchOnboardingGuidesReplay();
+          });
+        }
         var settingsTutorialCenterQToggle = document.getElementById("settings-tutorial-center-q-toggle");
         if (settingsTutorialCenterQToggle) {
           settingsTutorialCenterQToggle.addEventListener("click", function () {
@@ -1354,13 +1534,7 @@
           });
         }
         if (hallGuideSkipBtn) {
-          hallGuideSkipBtn.addEventListener("click", function () {
-            if (isNewUser()) return;
-            closeHallGuideModal();
-            if (state.isGuideFlowManual) {
-              startUIGuide();
-            }
-          });
+          hallGuideSkipBtn.addEventListener("click", skipAllGuidesFromHall);
         }
         if (returningChoiceSkipBtn) {
           returningChoiceSkipBtn.addEventListener("click", closeReturningGuideChoice);
@@ -1409,8 +1583,12 @@
               closeTutorialPlayer();
               return;
             }
+            if (chameleonGuideFloat && !chameleonGuideFloat.classList.contains("hidden")) {
+              closeChameleonGuideFloat();
+              return;
+            }
+            if (!calibrationModal.classList.contains("hidden")) return;
             if (!uiGuideOverlay.classList.contains("hidden") && !isNewUser()) skipUIGuide();
-            if (!calibrationModal.classList.contains("hidden")) closeCalibration();
             if (!tutorialModal.classList.contains("hidden")) closeTutorial();
           }
         });
@@ -1425,6 +1603,49 @@
         toggleRecording();
       }
 
+      var CALIBRATION_DURATION_MS = 2000;
+      var calibrationRun = {
+        countdownTimer: null,
+        progressTimeout: null,
+        completeTimeout: null,
+        cleanupTimeout: null,
+        failsafeInterval: null,
+      };
+      var calibrationCompletionPending = false;
+      var calibrationStartedAt = 0;
+
+      function clearCalibrationTimers() {
+        if (calibrationRun.countdownTimer) {
+          clearInterval(calibrationRun.countdownTimer);
+          calibrationRun.countdownTimer = null;
+        }
+        if (calibrationRun.progressTimeout) {
+          clearTimeout(calibrationRun.progressTimeout);
+          calibrationRun.progressTimeout = null;
+        }
+        if (calibrationRun.completeTimeout) {
+          clearTimeout(calibrationRun.completeTimeout);
+          calibrationRun.completeTimeout = null;
+        }
+        if (calibrationRun.cleanupTimeout) {
+          clearTimeout(calibrationRun.cleanupTimeout);
+          calibrationRun.cleanupTimeout = null;
+        }
+        if (calibrationRun.failsafeInterval) {
+          clearInterval(calibrationRun.failsafeInterval);
+          calibrationRun.failsafeInterval = null;
+        }
+      }
+
+      function hideCalibrationModal() {
+        calibrationModal.classList.add("opacity-0");
+        calibrationModal.classList.remove("opacity-100");
+        calibrationContent.classList.add("translate-y-4");
+        setTimeout(function () {
+          calibrationModal.classList.add("hidden");
+        }, 300);
+      }
+
       function showCalibrationModal() {
         // Prevent UI guide and calibration modal from stacking
         closeGuideUI();
@@ -1436,48 +1657,73 @@
         calibrationContent.classList.remove("translate-y-4");
       }
       function closeCalibration() {
-        calibrationModal.classList.add("opacity-0");
-        calibrationModal.classList.remove("opacity-100");
-        calibrationContent.classList.add("translate-y-4");
-        setTimeout(function () {
-          calibrationModal.classList.add("hidden");
-        }, 300);
+        clearCalibrationTimers();
+        calibrationCompletionPending = false;
+        calibrationStartedAt = 0;
+        hideCalibrationModal();
+      }
+
+      function completeCalibrationAndProceed() {
+        if (calibrationCompletionPending) return;
+        calibrationCompletionPending = true;
+        clearCalibrationTimers();
+        try {
+          state.isHardwareCalibrated = true;
+          localStorage.setItem(LS_CAL, "1");
+          hideCalibrationModal();
+        } catch (err) {
+          calibrationCompletionPending = false;
+          throw err;
+        }
+        calibrationRun.cleanupTimeout = setTimeout(function () {
+          calibrationRun.cleanupTimeout = null;
+          calibrationCompletionPending = false;
+          calibrationActions.classList.remove("hidden");
+          calibrationProgress.classList.add("hidden");
+          progressBar.style.width = "0%";
+          if (calibCountdown) calibCountdown.textContent = Math.ceil(CALIBRATION_DURATION_MS / 1000) + "s";
+          if (shouldPromptReturningGuideChoice()) {
+            openReturningGuideChoice();
+          } else if (isFalconDevice() && shouldAutoShowGuides()) {
+            if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) !== "1") {
+              showHallGuideModal();
+            }
+          }
+        }, 350);
+      }
+
+      function maybeFinishCalibrationByDeadline() {
+        if (!calibrationStartedAt) return;
+        if (calibrationCompletionPending) return;
+        if (Date.now() - calibrationStartedAt < CALIBRATION_DURATION_MS) return;
+        completeCalibrationAndProceed();
       }
 
       function startCalibration() {
+        calibrationCompletionPending = false;
+        clearCalibrationTimers();
+        calibrationStartedAt = Date.now();
         progressBar.style.width = "0%";
-        if (calibCountdown) calibCountdown.textContent = "3s";
+        if (calibCountdown) calibCountdown.textContent = Math.ceil(CALIBRATION_DURATION_MS / 1000) + "s";
         calibrationActions.classList.add("hidden");
         calibrationProgress.classList.remove("hidden");
-        var remaining = 3;
-        var countdownTimer = setInterval(function () {
-          remaining -= 1;
-          if (calibCountdown) calibCountdown.textContent = Math.max(remaining, 0) + "s";
-          if (remaining <= 0) clearInterval(countdownTimer);
-        }, 1000);
-        setTimeout(function () {
+        function refreshCalibCountdownLabel() {
+          if (!calibCountdown) return;
+          var leftMs = Math.max(0, CALIBRATION_DURATION_MS - (Date.now() - calibrationStartedAt));
+          calibCountdown.textContent = Math.max(0, Math.ceil(leftMs / 1000)) + "s";
+        }
+        refreshCalibCountdownLabel();
+        calibrationRun.countdownTimer = setInterval(refreshCalibCountdownLabel, 200);
+        calibrationRun.progressTimeout = setTimeout(function () {
+          calibrationRun.progressTimeout = null;
           void progressBar.offsetWidth;
           progressBar.style.width = "100%";
         }, 50);
-        setTimeout(function () {
-          clearInterval(countdownTimer);
-          state.isHardwareCalibrated = true;
-          localStorage.setItem(LS_CAL, "1");
-          closeCalibration();
-          setTimeout(function () {
-            calibrationActions.classList.remove("hidden");
-            calibrationProgress.classList.add("hidden");
-            progressBar.style.width = "0%";
-            if (calibCountdown) calibCountdown.textContent = "3s";
-            if (shouldPromptReturningGuideChoice()) {
-              openReturningGuideChoice();
-            } else if (isFalconDevice() && shouldAutoShowGuides()) {
-              if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) !== "1") {
-                showHallGuideModal();
-              }
-            }
-          }, 350);
-        }, 3000);
+        calibrationRun.completeTimeout = setTimeout(function () {
+          calibrationRun.completeTimeout = null;
+          completeCalibrationAndProceed();
+        }, CALIBRATION_DURATION_MS);
+        calibrationRun.failsafeInterval = setInterval(maybeFinishCalibrationByDeadline, 250);
       }
       function maybeRunAutoCalibrationFlow() {
         if (!isFalconDevice()) return;
@@ -1502,6 +1748,7 @@
 
       function showChameleonCarousel() {
         if (!chameleonCarousel || !isChameleonDevice()) return;
+        closeChameleonGuideFloat();
         state.chameleonStep = 0;
         if (chameleonNever) chameleonNever.checked = false;
         chameleonCarousel.classList.remove("hidden");
@@ -1580,6 +1827,7 @@
       }
 
       function launchOnboardingGuidesReplay() {
+        closeChameleonGuideFloat();
         closeSettingsPanel();
         closeTutorial();
         if (isChameleonDevice()) {
@@ -1590,6 +1838,7 @@
         }
       }
       function openSettingsTutorialCenter() {
+        closeChameleonGuideFloat();
         closeTutorial();
         closeTutorialPlayer();
         if (!settingsPanel) return;
@@ -1631,6 +1880,7 @@
       function toggleSettingsPanel() {
         if (!settingsPanel) return;
         if (settingsPanel.classList.contains("hidden")) {
+          closeChameleonGuideFloat();
           settingsPanel.classList.remove("hidden");
           settingsPanel.classList.add("flex");
           setSettingsTab(state.settingsTab || "general");
@@ -1778,6 +2028,7 @@
         localStorage.removeItem(LS_CAL);
         localStorage.removeItem(LS_TUTORIAL_AUTO_OPENED);
         localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
+        localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER);
         localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
         localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN);
         localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
@@ -1798,6 +2049,7 @@
           localStorage.removeItem(LS_GUIDES_HIDDEN);
           localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
           localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
+          localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER);
           localStorage.removeItem(LS_NEVER);
           localStorage.removeItem(LS_DONE);
           localStorage.removeItem(LS_CAL);
@@ -1808,6 +2060,14 @@
       function bindDraggableTutorialHandle() {
         if (!btnTutorial || !deviceEl) return;
         btnTutorial.addEventListener("click", function () {
+          if (isChameleonDevice()) {
+            if (localStorage.getItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER) === "1") {
+              openSettingsTutorialCenter();
+              return;
+            }
+            toggleChameleonGuideFloat();
+            return;
+          }
           openSettingsTutorialCenter();
         });
       }
@@ -1826,6 +2086,7 @@
           settingsPanel.classList.remove("flex");
         }
         if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
+        closeChameleonGuideFloat();
         if (floatCloseZone) {
           floatCloseZone.classList.remove("flex", "ring-2");
           floatCloseZone.classList.add("hidden");
@@ -1839,6 +2100,7 @@
         localStorage.removeItem(LS_CAL);
         localStorage.removeItem(LS_ONBOARDING_DONE);
         localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
+        localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER);
         localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
         localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN);
         localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
@@ -1853,6 +2115,9 @@
           "h-12 w-12 rounded-full bg-[#b30000] shadow-inner transition duration-300 group-active:scale-95";
         btnRecord.classList.remove("recording-active", "ring-2", "ring-red-500/50");
         if (guideNever) guideNever.checked = false;
+        var chameleonFloatNeverCb = document.getElementById("chameleon-guide-float-never");
+        if (chameleonFloatNeverCb) chameleonFloatNeverCb.checked = false;
+        if (isChameleonDevice()) refreshChameleonTutorialEntryCopy();
         setTimeout(function () {
           checkAndShowGuide();
           if (isFalconDevice() && isNewUser() && localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1") {

@@ -900,7 +900,10 @@
                   ></span>
                 </button>
               </label>
-              <div class="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+              <div
+                id="settings-new-user-onboarding-wrap"
+                class="rounded-xl border border-white/10 bg-white/[0.04] p-3"
+              >
                 <div class="text-[13px] font-semibold text-white/90">New user onboarding</div>
                 <p class="mt-1 text-xs leading-relaxed text-white/45">
                   Replay the product guides shown before capture: Falcon Hall setup and capture overlays, or the Chameleon
@@ -1181,6 +1184,10 @@
         var chameleonTutorialWrap = document.getElementById("settings-tutorial-chameleon-wrap");
         if (chameleonTutorialWrap) {
           chameleonTutorialWrap.classList.toggle("hidden", family !== "chameleon");
+        }
+        var newUserOnboardingWrap = document.getElementById("settings-new-user-onboarding-wrap");
+        if (newUserOnboardingWrap) {
+          newUserOnboardingWrap.classList.toggle("hidden", family === "chameleon");
         }
         var tutorialBlurb = document.getElementById("settings-tutorial-blurb");
         if (tutorialBlurb) {

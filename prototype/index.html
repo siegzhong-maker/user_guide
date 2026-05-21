@@ -157,7 +157,10 @@
         class="hud-btn pointer-events-auto absolute right-44 top-0 z-30 flex h-7 w-10 items-end justify-center rounded-b-2xl border border-white/30 border-t-0 bg-black/70 pb-0.5 text-base font-semibold text-white/95 backdrop-blur transition hover:bg-black/85 hover:text-white"
         title="Tutorial Center (Settings)"
         aria-controls="settings-panel"
-        aria-label="Open Tutorial Center in Recording Settings"
+        aria-label="Tutorial Center shortcut menu"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-controls="tutorial-entry-menu"
       >
         ?
       </button>
@@ -569,7 +572,34 @@
         <div class="h-16 rounded-md bg-slate-700/90 flex items-center justify-center text-[11px] text-white/90">Floating tutorial preview</div>
         <p class="mt-1 text-[10px] leading-snug text-white/70">Keep this window visible while operating the capture screen.</p>
       </div>
-      <!-- Chameleon: floating entry from “?” — replay carousel or open settings -->
+      <!-- “?” shortcut menu: hide chip or open Tutorial Center -->
+      <div
+        id="tutorial-entry-menu"
+        class="pointer-events-auto absolute right-4 top-12 z-[46] hidden w-[11.5rem] rounded-xl border border-white/20 bg-black/88 p-2.5 text-white shadow-xl backdrop-blur-md"
+        role="menu"
+        aria-label="Tutorial Center shortcut"
+      >
+        <p class="mb-2 px-1 text-[11px] font-semibold text-white/90">Tutorial Center</p>
+        <button
+          type="button"
+          id="tutorial-entry-menu-close-chip"
+          class="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-left text-[11px] font-medium text-white/90 transition hover:bg-white/15"
+          role="menuitem"
+          aria-label="Close floating shortcut"
+        >
+          Close floating shortcut
+        </button>
+        <button
+          type="button"
+          id="tutorial-entry-menu-open-center"
+          class="mt-1.5 w-full rounded-lg bg-blue-500/90 px-3 py-2 text-left text-[11px] font-semibold text-white transition hover:bg-blue-400"
+          role="menuitem"
+          aria-label="Open Tutorial Center"
+        >
+          Open Tutorial Center
+        </button>
+      </div>
+      <!-- Chameleon: shooting guide float (settings / replay) -->
       <div
         id="chameleon-guide-float"
         class="pointer-events-auto absolute right-4 top-12 z-[46] hidden w-[13.75rem] rounded-xl border border-emerald-400/25 bg-black/88 p-3 text-white shadow-xl backdrop-blur-md"
@@ -864,13 +894,10 @@
               >
                 <div class="text-[13px] font-semibold text-white/95">Chameleon shooting guide</div>
                 <p class="text-xs leading-relaxed text-white/50">
-                  Tap the <span class="font-semibold text-white/80">?</span> chip on the capture screen to open a floating
-                  menu — replay the four-step guide without leaving the viewfinder. If you check <span
-                    class="font-semibold text-white/70"
-                    >Don't show this menu again</span
+                  Use the button below to replay the four-step shooting guide. The <span class="font-semibold text-white/80"
+                    >?</span
                   >
-                  in that menu, <span class="font-semibold text-white/80">?</span> will open Recording Settings → Tutorial
-                  Center directly next time.
+                  chip opens the Tutorial Center shortcut menu (close floating shortcut or open Tutorial Center).
                 </p>
                 <button
                   type="button"
@@ -1048,6 +1075,9 @@
       const tutorialFloatTitle = document.getElementById("tutorial-float-title");
       const tutorialFloatCloseBtn = document.getElementById("tutorial-float-close");
       const floatCloseZone = document.getElementById("float-close-zone");
+      const tutorialEntryMenu = document.getElementById("tutorial-entry-menu");
+      const tutorialEntryMenuCloseChip = document.getElementById("tutorial-entry-menu-close-chip");
+      const tutorialEntryMenuOpenCenter = document.getElementById("tutorial-entry-menu-open-center");
       const chameleonGuideFloat = document.getElementById("chameleon-guide-float");
       const chameleonGuideFloatCloseBtn = document.getElementById("chameleon-guide-float-close");
       const chameleonGuideFloatReplayBtn = document.getElementById("chameleon-guide-float-replay");
@@ -1140,23 +1170,18 @@
       function isFalconDevice() {
         return getDeviceFamily() === "falcon";
       }
+      function refreshTutorialEntryMenuAria() {
+        if (!btnTutorial) return;
+        var open = tutorialEntryMenu && !tutorialEntryMenu.classList.contains("hidden");
+        btnTutorial.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+
       function refreshChameleonTutorialEntryCopy() {
         if (!isChameleonDevice()) return;
-        if (btnTutorial) {
-          if (localStorage.getItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER) === "1") {
-            btnTutorial.setAttribute("aria-label", "Open Tutorial Center in Recording Settings");
-            btnTutorial.title = "Tutorial Center (Settings)";
-          } else {
-            btnTutorial.setAttribute("aria-label", "Toggle shooting guide floating menu");
-            btnTutorial.title = "Shooting guide (floating menu)";
-          }
-        }
         var qBlurb = document.getElementById("settings-tutorial-q-blurb");
         if (qBlurb) {
           qBlurb.textContent =
-            localStorage.getItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER) === "1"
-              ? "Show or hide the ? chip. After “don't show this menu again”, ? opens Recording Settings → Tutorial Center directly."
-              : "Show or hide the ? chip that opens the shooting-guide floating menu on capture.";
+            "Show or hide the ? chip. Tap ? to close the floating shortcut or open Tutorial Center in Recording Settings.";
         }
       }
       function migrateLegacyNeverFlag() {
@@ -1199,11 +1224,35 @@
           refreshChameleonTutorialEntryCopy();
         } else if (qBlurb) {
           qBlurb.textContent =
-            "Turn the Tutorial Center tab on the shooting screen on or off.";
+            "Show or hide the ? chip. Tap ? to close the floating shortcut or open Tutorial Center in Recording Settings.";
         }
-        if (btnTutorial && family !== "chameleon") {
-          btnTutorial.setAttribute("aria-label", "Open Tutorial Center in Recording Settings");
-          btnTutorial.title = "Tutorial Center (Settings)";
+        if (btnTutorial) {
+          btnTutorial.setAttribute("aria-label", "Tutorial Center shortcut menu");
+          btnTutorial.title = "Tutorial Center shortcut";
+        }
+        refreshTutorialEntryMenuAria();
+      }
+
+      function closeTutorialEntryMenu() {
+        if (tutorialEntryMenu) tutorialEntryMenu.classList.add("hidden");
+        refreshTutorialEntryMenuAria();
+      }
+
+      function openTutorialEntryMenu() {
+        if (!tutorialEntryMenu) return;
+        closeChameleonGuideFloat();
+        closeSettingsPanel();
+        if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
+        tutorialEntryMenu.classList.remove("hidden");
+        refreshTutorialEntryMenuAria();
+      }
+
+      function toggleTutorialEntryMenu() {
+        if (!tutorialEntryMenu) return;
+        if (!tutorialEntryMenu.classList.contains("hidden")) {
+          closeTutorialEntryMenu();
+        } else {
+          openTutorialEntryMenu();
         }
       }
 
@@ -1495,6 +1544,17 @@
             tutorialFloatWindow.classList.add("hidden");
           });
         }
+        if (tutorialEntryMenuCloseChip) {
+          tutorialEntryMenuCloseChip.addEventListener("click", function () {
+            closeTutorialEntryMenu();
+            setTutorialEntryEnabled(false);
+          });
+        }
+        if (tutorialEntryMenuOpenCenter) {
+          tutorialEntryMenuOpenCenter.addEventListener("click", function () {
+            openSettingsTutorialCenter();
+          });
+        }
         if (chameleonGuideFloatCloseBtn) {
           chameleonGuideFloatCloseBtn.addEventListener("click", closeChameleonGuideFloat);
         }
@@ -1592,6 +1652,10 @@
             }
             if (chameleonGuideFloat && !chameleonGuideFloat.classList.contains("hidden")) {
               closeChameleonGuideFloat();
+              return;
+            }
+            if (tutorialEntryMenu && !tutorialEntryMenu.classList.contains("hidden")) {
+              closeTutorialEntryMenu();
               return;
             }
             if (!calibrationModal.classList.contains("hidden")) return;
@@ -1845,6 +1909,7 @@
         }
       }
       function openSettingsTutorialCenter() {
+        closeTutorialEntryMenu();
         closeChameleonGuideFloat();
         closeTutorial();
         closeTutorialPlayer();
@@ -1887,6 +1952,7 @@
       function toggleSettingsPanel() {
         if (!settingsPanel) return;
         if (settingsPanel.classList.contains("hidden")) {
+          closeTutorialEntryMenu();
           closeChameleonGuideFloat();
           settingsPanel.classList.remove("hidden");
           settingsPanel.classList.add("flex");
@@ -1909,6 +1975,7 @@
           btnTutorial.classList.remove("hidden");
         } else {
           btnTutorial.classList.add("hidden");
+          closeTutorialEntryMenu();
           closeTutorial();
           if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
         }
@@ -2067,15 +2134,7 @@
       function bindDraggableTutorialHandle() {
         if (!btnTutorial || !deviceEl) return;
         btnTutorial.addEventListener("click", function () {
-          if (isChameleonDevice()) {
-            if (localStorage.getItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER) === "1") {
-              openSettingsTutorialCenter();
-              return;
-            }
-            toggleChameleonGuideFloat();
-            return;
-          }
-          openSettingsTutorialCenter();
+          toggleTutorialEntryMenu();
         });
       }
 
@@ -2093,6 +2152,7 @@
           settingsPanel.classList.remove("flex");
         }
         if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
+        closeTutorialEntryMenu();
         closeChameleonGuideFloat();
         if (floatCloseZone) {
           floatCloseZone.classList.remove("flex", "ring-2");

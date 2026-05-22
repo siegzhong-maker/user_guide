@@ -131,6 +131,16 @@
           >
             live
           </button>
+          <button
+            type="button"
+            id="btn-scoreboard"
+            class="hud-btn flex h-10 w-10 items-center justify-center text-[8px] font-bold leading-none"
+            disabled
+            title="Scoreboard"
+            aria-label="Scoreboard"
+          >
+            SC
+          </button>
           <button type="button" class="h-10 w-10" disabled title="方向" aria-hidden="true">✥</button>
           <button type="button" class="h-10 w-10" disabled title="网格" aria-hidden="true">▦</button>
           <button
@@ -398,7 +408,7 @@
         class="pointer-events-auto absolute inset-0 z-[85] hidden flex-col text-white"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="chameleon-step-text"
+        aria-labelledby="chameleon-step-body"
       >
         <div
           class="absolute inset-0 bg-slate-950/78 backdrop-blur-[3px]"
@@ -407,12 +417,10 @@
         <div class="relative z-10 flex h-full min-h-0 flex-col pointer-events-none">
           <div class="pointer-events-auto flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-28 pt-3">
             <div
-              class="max-h-[42vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/15 bg-black/55 px-5 py-5 text-center shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-md sm:max-h-none"
+              id="chameleon-step-card"
+              class="max-h-[52vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-white/15 bg-black/55 px-5 py-5 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-md sm:max-h-none"
             >
-              <p
-                id="chameleon-step-text"
-                class="text-[15px] font-medium leading-relaxed text-white/95 sm:text-lg"
-              ></p>
+              <div id="chameleon-step-body" class="text-left"></div>
             </div>
           </div>
           <!-- Same footer pattern as Falcon (hall / UI guide): step pill + pill Previous/Next + optional last-step checkbox -->
@@ -597,54 +605,6 @@
           aria-label="Open Tutorial Center"
         >
           Open Tutorial Center
-        </button>
-      </div>
-      <!-- Chameleon: shooting guide float (settings / replay) -->
-      <div
-        id="chameleon-guide-float"
-        class="pointer-events-auto absolute right-4 top-12 z-[46] hidden w-[13.75rem] rounded-xl border border-emerald-400/25 bg-black/88 p-3 text-white shadow-xl backdrop-blur-md"
-        role="dialog"
-        aria-label="Shooting guide shortcuts"
-      >
-        <div class="mb-2 flex items-start justify-between gap-2">
-          <div class="min-w-0">
-            <div class="text-[12px] font-semibold text-white">Shooting guide</div>
-            <p class="mt-1 text-[10px] leading-snug text-white/65">
-              Replay the four-step tips or open Recording Settings.
-            </p>
-          </div>
-          <button
-            type="button"
-            id="chameleon-guide-float-close"
-            class="shrink-0 rounded px-1 text-lg leading-none text-white/55 hover:bg-white/10 hover:text-white"
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>
-        <label
-          class="mb-2 flex cursor-pointer items-start gap-2 rounded-lg bg-white/[0.06] px-2 py-2"
-        >
-          <input
-            id="chameleon-guide-float-never"
-            type="checkbox"
-            class="mt-0.5 shrink-0 rounded border-white/40"
-          />
-          <span class="text-[10px] leading-snug text-white/75">Don't show this menu again · 不再展示此菜单</span>
-        </label>
-        <button
-          type="button"
-          id="chameleon-guide-float-replay"
-          class="w-full rounded-lg bg-emerald-400/95 px-3 py-2 text-center text-[11px] font-semibold text-emerald-950 transition hover:bg-emerald-300"
-        >
-          Replay guide
-        </button>
-        <button
-          type="button"
-          id="chameleon-guide-float-settings"
-          class="mt-2 w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-center text-[11px] font-medium text-white/90 transition hover:bg-white/15"
-        >
-          Recording settings…
         </button>
       </div>
       <div
@@ -894,10 +854,7 @@
               >
                 <div class="text-[13px] font-semibold text-white/95">Chameleon shooting guide</div>
                 <p class="text-xs leading-relaxed text-white/50">
-                  Use the button below to replay the four-step shooting guide. The <span class="font-semibold text-white/80"
-                    >?</span
-                  >
-                  chip opens the Tutorial Center shortcut menu (close floating shortcut or open Tutorial Center).
+                  Use the button below to replay the four-step shooting guide shown before capture.
                 </p>
                 <button
                   type="button"
@@ -907,7 +864,10 @@
                   Replay shooting guide
                 </button>
               </div>
-              <label class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
+              <label
+                id="settings-tutorial-q-toggle-wrap"
+                class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3"
+              >
                 <div class="min-w-0">
                   <div class="text-[15px] font-medium">“?” shortcut on capture</div>
                   <p id="settings-tutorial-q-blurb" class="mt-0.5 text-xs leading-snug text-white/45">
@@ -963,7 +923,7 @@
         class="mb-3 w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-800"
       >
         <option value="falcon">Falcon (calibration → setup → UI hints)</option>
-        <option value="chameleon">变色龙（四步：中线 / 高度 / 界面 / 录制，末页可不再展示）</option>
+        <option value="chameleon">变色龙（四步：中线 / 高度 / 直播 / 计分牌，末页可不再展示）</option>
       </select>
       <div class="space-y-1.5">
         <button
@@ -996,7 +956,7 @@
         </button>
         <button
           type="button"
-          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP); localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER); localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES); localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN); localStorage.removeItem('tw_proto_falcon_skip_setup_tips_v1'); localStorage.removeItem('tw_proto_falcon_skip_ui_hints_v1'); location.reload();"
+          onclick="localStorage.removeItem(LS_NEVER); localStorage.removeItem(LS_DONE); localStorage.removeItem(LS_CAL); localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP); localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES); localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN); localStorage.removeItem('tw_proto_falcon_skip_setup_tips_v1'); localStorage.removeItem('tw_proto_falcon_skip_ui_hints_v1'); location.reload();"
           class="w-full rounded border border-slate-200 py-1.5 text-xs text-slate-600"
         >
           清除本页 localStorage
@@ -1017,11 +977,9 @@
       const LS_GUIDES_HIDDEN = "tw_proto_guides_hidden_v1";
       const LS_DEVICE_FAMILY = "tw_proto_device_family_v1";
       const LS_CHAMELEON_CAROUSEL_SKIP = "tw_proto_chameleon_carousel_skip_v1";
-      const LS_CHAMELEON_GUIDE_FLOAT_NEVER = "tw_proto_chameleon_guide_float_never_v1";
       const LS_FALCON_SKIP_AUTO_GUIDES = "tw_proto_falcon_skip_auto_guides_v1";
       const LS_FALCON_INTRO_VIDEO_SEEN = "tw_proto_falcon_intro_video_seen_v1";
       window.LS_FALCON_INTRO_VIDEO_SEEN = LS_FALCON_INTRO_VIDEO_SEEN;
-      window.LS_CHAMELEON_GUIDE_FLOAT_NEVER = LS_CHAMELEON_GUIDE_FLOAT_NEVER;
 
       let state = {
         isHardwareCalibrated: false,
@@ -1078,10 +1036,6 @@
       const tutorialEntryMenu = document.getElementById("tutorial-entry-menu");
       const tutorialEntryMenuCloseChip = document.getElementById("tutorial-entry-menu-close-chip");
       const tutorialEntryMenuOpenCenter = document.getElementById("tutorial-entry-menu-open-center");
-      const chameleonGuideFloat = document.getElementById("chameleon-guide-float");
-      const chameleonGuideFloatCloseBtn = document.getElementById("chameleon-guide-float-close");
-      const chameleonGuideFloatReplayBtn = document.getElementById("chameleon-guide-float-replay");
-      const chameleonGuideFloatSettingsBtn = document.getElementById("chameleon-guide-float-settings");
       const settingsPanel = document.getElementById("settings-panel");
       const deviceEl = document.getElementById("device");
       const btnTutorial = document.getElementById("btn-tutorial");
@@ -1091,7 +1045,7 @@
       const protoDeviceFamily = document.getElementById("proto-device-family");
       const deviceBrandName = document.getElementById("device-brand-name");
       const chameleonCarousel = document.getElementById("chameleon-carousel");
-      const chameleonStepText = document.getElementById("chameleon-step-text");
+      const chameleonStepBody = document.getElementById("chameleon-step-body");
       const chameleonStepIndicator = document.getElementById("chameleon-step-indicator");
       const chameleonSkipFooterBtn = document.getElementById("chameleon-skip-footer");
       const chameleonPrevBtn = document.getElementById("chameleon-prev");
@@ -1141,13 +1095,67 @@
       ];
       let activeTutorialId = null;
 
-      /** Four steps: center line → height → left UI (modes) → record (skip redundant generic “recommended height” opener) */
+      /** Four steps: center line → height → live (illustrated) → scoreboard (illustrated) */
       const chameleonCarouselSteps = [
-        "Align the camera with the center line to ensure full court coverage.",
-        "Place the camera on a tripod at 2.2 m or higher for the best perspective. Confirm positioning before recording.",
-        "Switch video modes from the icons along the left.",
-        "Tap the red button to start recording.",
+        {
+          layout: "text",
+          text: "Align the camera with the center line to ensure full court coverage.",
+        },
+        {
+          layout: "text",
+          text: "Place the camera on a tripod at 2.2 m or higher for the best perspective. Confirm positioning before recording.",
+        },
+        {
+          layout: "illustrated",
+          title: "Start live streaming",
+          desc: "Tap live on the left toolbar to go live. You can keep recording while streaming to your audience.",
+          illustration: "live",
+        },
+        {
+          layout: "illustrated",
+          title: "Show the scoreboard overlay",
+          desc: "Open the scoreboard from the left toolbar to display live scores on your stream or recording.",
+          illustration: "scoreboard",
+        },
       ];
+
+      function chameleonIllustrationMarkup(kind) {
+        if (kind === "live") {
+          return (
+            '<div class="relative mx-auto aspect-[16/10] w-full max-w-[17rem] overflow-hidden rounded-xl border border-sky-400/35 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950">' +
+            '<div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(30,58,95,0.55),rgba(15,23,42,0.9))]"></div>' +
+            '<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(56,189,248,0.18),transparent_55%)]"></div>' +
+            '<div class="absolute left-2 top-2 flex flex-col gap-1.5">' +
+            '<span class="rounded-md bg-black/50 px-1.5 py-0.5 text-[8px] text-white/50">Home</span>' +
+            '<span class="rounded-md border border-sky-400 bg-sky-500/90 px-2 py-1 text-[9px] font-bold text-white shadow-[0_0_12px_rgba(56,189,248,0.55)]">live</span>' +
+            '<span class="rounded-md bg-black/50 px-1.5 py-0.5 text-[8px] text-white/50">SC</span>' +
+            "</div>" +
+            '<div class="absolute bottom-2 right-2 rounded-full bg-red-600/90 px-2 py-1 text-[8px] font-semibold text-white">LIVE</div>' +
+            '<div class="absolute inset-x-6 top-1/2 -translate-y-1/2 text-center text-[9px] text-white/35">Viewfinder</div>' +
+            "</div>"
+          );
+        }
+        if (kind === "scoreboard") {
+          return (
+            '<div class="relative mx-auto aspect-[16/10] w-full max-w-[17rem] overflow-hidden rounded-xl border border-emerald-400/35 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950">' +
+            '<div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(6,78,59,0.45),rgba(15,23,42,0.92))]"></div>' +
+            '<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(52,211,153,0.15),transparent_55%)]"></div>' +
+            '<div class="absolute left-2 top-2 flex flex-col gap-1.5">' +
+            '<span class="rounded-md bg-black/50 px-1.5 py-0.5 text-[8px] text-white/50">live</span>' +
+            '<span class="rounded-md border border-emerald-400 bg-emerald-500/90 px-2 py-1 text-[8px] font-bold text-white shadow-[0_0_12px_rgba(52,211,153,0.5)]">SC</span>' +
+            "</div>" +
+            '<div class="absolute left-1/2 top-[38%] w-[88%] -translate-x-1/2 rounded-lg border border-white/25 bg-black/65 px-2 py-2 text-center backdrop-blur-sm">' +
+            '<div class="text-[8px] font-semibold uppercase tracking-wide text-emerald-300">Scoreboard</div>' +
+            '<div class="mt-1 flex items-center justify-center gap-3 text-sm font-bold tabular-nums text-white">' +
+            '<span>12</span><span class="text-white/40">:</span><span>8</span>' +
+            "</div>" +
+            '<div class="mt-0.5 text-[7px] text-white/45">Q3 · 04:32</div>' +
+            "</div>" +
+            "</div>"
+          );
+        }
+        return "";
+      }
 
       const hallGuideSteps = [
         {
@@ -1176,14 +1184,6 @@
         btnTutorial.setAttribute("aria-expanded", open ? "true" : "false");
       }
 
-      function refreshChameleonTutorialEntryCopy() {
-        if (!isChameleonDevice()) return;
-        var qBlurb = document.getElementById("settings-tutorial-q-blurb");
-        if (qBlurb) {
-          qBlurb.textContent =
-            "Show or hide the ? chip. Tap ? to close the floating shortcut or open Tutorial Center in Recording Settings.";
-        }
-      }
       function migrateLegacyNeverFlag() {
         if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") return;
         if (localStorage.getItem(LS_NEVER) === "1") {
@@ -1219,16 +1219,22 @@
           tutorialBlurb.textContent =
             "Featured tutorial — preview below; tap to watch fullscreen on top of the capture preview.";
         }
+        var qToggleWrap = document.getElementById("settings-tutorial-q-toggle-wrap");
+        if (qToggleWrap) {
+          qToggleWrap.classList.toggle("hidden", family === "chameleon");
+        }
         var qBlurb = document.getElementById("settings-tutorial-q-blurb");
-        if (family === "chameleon") {
-          refreshChameleonTutorialEntryCopy();
-        } else if (qBlurb) {
+        if (qBlurb && family !== "chameleon") {
           qBlurb.textContent =
             "Show or hide the ? chip. Tap ? to close the floating shortcut or open Tutorial Center in Recording Settings.";
         }
         if (btnTutorial) {
-          btnTutorial.setAttribute("aria-label", "Tutorial Center shortcut menu");
-          btnTutorial.title = "Tutorial Center shortcut";
+          if (family === "chameleon") {
+            btnTutorial.classList.add("hidden");
+          } else {
+            btnTutorial.setAttribute("aria-label", "Tutorial Center shortcut menu");
+            btnTutorial.title = "Tutorial Center shortcut";
+          }
         }
         refreshTutorialEntryMenuAria();
       }
@@ -1239,8 +1245,7 @@
       }
 
       function openTutorialEntryMenu() {
-        if (!tutorialEntryMenu) return;
-        closeChameleonGuideFloat();
+        if (!tutorialEntryMenu || isChameleonDevice()) return;
         closeSettingsPanel();
         if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
         tutorialEntryMenu.classList.remove("hidden");
@@ -1248,42 +1253,11 @@
       }
 
       function toggleTutorialEntryMenu() {
-        if (!tutorialEntryMenu) return;
+        if (!tutorialEntryMenu || isChameleonDevice()) return;
         if (!tutorialEntryMenu.classList.contains("hidden")) {
           closeTutorialEntryMenu();
         } else {
           openTutorialEntryMenu();
-        }
-      }
-
-      function persistChameleonGuideFloatNeverIfChecked() {
-        var cb = document.getElementById("chameleon-guide-float-never");
-        if (cb && cb.checked) {
-          localStorage.setItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER, "1");
-          refreshChameleonTutorialEntryCopy();
-        }
-      }
-
-      function closeChameleonGuideFloat() {
-        persistChameleonGuideFloatNeverIfChecked();
-        if (chameleonGuideFloat) chameleonGuideFloat.classList.add("hidden");
-      }
-
-      function openChameleonGuideFloat() {
-        if (!chameleonGuideFloat || !isChameleonDevice()) return;
-        closeSettingsPanel();
-        if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
-        var cb = document.getElementById("chameleon-guide-float-never");
-        if (cb) cb.checked = false;
-        chameleonGuideFloat.classList.remove("hidden");
-      }
-
-      function toggleChameleonGuideFloat() {
-        if (!chameleonGuideFloat || !isChameleonDevice()) return;
-        if (!chameleonGuideFloat.classList.contains("hidden")) {
-          closeChameleonGuideFloat();
-        } else {
-          openChameleonGuideFloat();
         }
       }
       function isNewUser() {
@@ -1555,21 +1529,6 @@
             openSettingsTutorialCenter();
           });
         }
-        if (chameleonGuideFloatCloseBtn) {
-          chameleonGuideFloatCloseBtn.addEventListener("click", closeChameleonGuideFloat);
-        }
-        if (chameleonGuideFloatReplayBtn) {
-          chameleonGuideFloatReplayBtn.addEventListener("click", function () {
-            closeChameleonGuideFloat();
-            launchOnboardingGuidesReplay();
-          });
-        }
-        if (chameleonGuideFloatSettingsBtn) {
-          chameleonGuideFloatSettingsBtn.addEventListener("click", function () {
-            closeChameleonGuideFloat();
-            openSettingsTutorialCenter();
-          });
-        }
         var settingsChameleonReplayGuide = document.getElementById("settings-chameleon-replay-guide");
         if (settingsChameleonReplayGuide) {
           settingsChameleonReplayGuide.addEventListener("click", function () {
@@ -1648,10 +1607,6 @@
             }
             if (tutorialPlayerModal && !tutorialPlayerModal.classList.contains("hidden")) {
               closeTutorialPlayer();
-              return;
-            }
-            if (chameleonGuideFloat && !chameleonGuideFloat.classList.contains("hidden")) {
-              closeChameleonGuideFloat();
               return;
             }
             if (tutorialEntryMenu && !tutorialEntryMenu.classList.contains("hidden")) {
@@ -1819,7 +1774,6 @@
 
       function showChameleonCarousel() {
         if (!chameleonCarousel || !isChameleonDevice()) return;
-        closeChameleonGuideFloat();
         state.chameleonStep = 0;
         if (chameleonNever) chameleonNever.checked = false;
         chameleonCarousel.classList.remove("hidden");
@@ -1834,7 +1788,30 @@
       function renderChameleonStep() {
         var total = chameleonCarouselSteps.length;
         var idx = state.chameleonStep;
-        if (chameleonStepText) chameleonStepText.textContent = chameleonCarouselSteps[idx] || "";
+        var step = chameleonCarouselSteps[idx];
+        if (chameleonStepBody && step) {
+          if (step.layout === "illustrated") {
+            chameleonStepBody.innerHTML =
+              '<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">' +
+              '<div class="shrink-0 sm:w-[48%]">' +
+              chameleonIllustrationMarkup(step.illustration) +
+              "</div>" +
+              '<div class="min-w-0 flex-1 text-left">' +
+              '<h3 class="text-base font-semibold leading-snug text-white sm:text-lg">' +
+              step.title +
+              "</h3>" +
+              '<p class="mt-2 text-[13px] leading-relaxed text-white/80 sm:text-[15px]">' +
+              step.desc +
+              "</p>" +
+              "</div>" +
+              "</div>";
+          } else {
+            chameleonStepBody.innerHTML =
+              '<p class="text-center text-[15px] font-medium leading-relaxed text-white/95 sm:text-lg">' +
+              (step.text || "") +
+              "</p>";
+          }
+        }
         if (chameleonStepIndicator) chameleonStepIndicator.textContent = idx + 1 + "/" + total;
         if (chameleonNeverWrap) chameleonNeverWrap.classList.toggle("hidden", idx !== total - 1);
         if (chameleonPrevBtn) chameleonPrevBtn.disabled = idx === 0;
@@ -1898,7 +1875,6 @@
       }
 
       function launchOnboardingGuidesReplay() {
-        closeChameleonGuideFloat();
         closeSettingsPanel();
         closeTutorial();
         if (isChameleonDevice()) {
@@ -1910,7 +1886,6 @@
       }
       function openSettingsTutorialCenter() {
         closeTutorialEntryMenu();
-        closeChameleonGuideFloat();
         closeTutorial();
         closeTutorialPlayer();
         if (!settingsPanel) return;
@@ -1953,7 +1928,6 @@
         if (!settingsPanel) return;
         if (settingsPanel.classList.contains("hidden")) {
           closeTutorialEntryMenu();
-          closeChameleonGuideFloat();
           settingsPanel.classList.remove("hidden");
           settingsPanel.classList.add("flex");
           setSettingsTab(state.settingsTab || "general");
@@ -1963,6 +1937,10 @@
       }
       function setTutorialEntryEnabled(isEnabled) {
         if (!btnTutorial) return;
+        if (isChameleonDevice()) {
+          btnTutorial.classList.add("hidden");
+          return;
+        }
         var centerToggle = document.getElementById("settings-tutorial-center-q-toggle");
         var centerThumb = document.getElementById("settings-tutorial-center-q-thumb");
         if (centerToggle) {
@@ -2102,7 +2080,6 @@
         localStorage.removeItem(LS_CAL);
         localStorage.removeItem(LS_TUTORIAL_AUTO_OPENED);
         localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
-        localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER);
         localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
         localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN);
         localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
@@ -2123,7 +2100,6 @@
           localStorage.removeItem(LS_GUIDES_HIDDEN);
           localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
           localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
-          localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER);
           localStorage.removeItem(LS_NEVER);
           localStorage.removeItem(LS_DONE);
           localStorage.removeItem(LS_CAL);
@@ -2153,7 +2129,6 @@
         }
         if (tutorialFloatWindow) tutorialFloatWindow.classList.add("hidden");
         closeTutorialEntryMenu();
-        closeChameleonGuideFloat();
         if (floatCloseZone) {
           floatCloseZone.classList.remove("flex", "ring-2");
           floatCloseZone.classList.add("hidden");
@@ -2167,7 +2142,6 @@
         localStorage.removeItem(LS_CAL);
         localStorage.removeItem(LS_ONBOARDING_DONE);
         localStorage.removeItem(LS_CHAMELEON_CAROUSEL_SKIP);
-        localStorage.removeItem(LS_CHAMELEON_GUIDE_FLOAT_NEVER);
         localStorage.removeItem(LS_FALCON_SKIP_AUTO_GUIDES);
         localStorage.removeItem(LS_FALCON_INTRO_VIDEO_SEEN);
         localStorage.removeItem("tw_proto_falcon_skip_setup_tips_v1");
@@ -2182,9 +2156,6 @@
           "h-12 w-12 rounded-full bg-[#b30000] shadow-inner transition duration-300 group-active:scale-95";
         btnRecord.classList.remove("recording-active", "ring-2", "ring-red-500/50");
         if (guideNever) guideNever.checked = false;
-        var chameleonFloatNeverCb = document.getElementById("chameleon-guide-float-never");
-        if (chameleonFloatNeverCb) chameleonFloatNeverCb.checked = false;
-        if (isChameleonDevice()) refreshChameleonTutorialEntryCopy();
         setTimeout(function () {
           checkAndShowGuide();
           if (isFalconDevice() && isNewUser() && localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1") {

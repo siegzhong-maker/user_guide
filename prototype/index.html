@@ -437,6 +437,12 @@
                   <span>Don't show again</span>
                 </label>
               </div>
+              <div id="falcon-guide-never-wrap" class="hidden w-full max-w-[9.5rem] text-left">
+                <label class="inline-flex cursor-pointer items-start gap-1.5 rounded-lg bg-black/60 px-2 py-1.5 text-[9px] leading-tight text-white/90">
+                  <input id="guide-never-in-carousel" type="checkbox" class="mt-0.5 shrink-0 rounded border-white/40" />
+                  <span>Don't show again</span>
+                </label>
+              </div>
             </div>
             <div class="flex w-full flex-wrap items-center justify-end gap-2">
               <button
@@ -922,7 +928,7 @@
         id="proto-device-family"
         class="mb-3 w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-800"
       >
-        <option value="falcon">Falcon (calibration → setup → UI hints)</option>
+        <option value="falcon">Falcon (calibration → setup → live/scoreboard carousel)</option>
         <option value="chameleon">变色龙（四步：中线 / 高度 / 直播 / 计分牌，末页可不再展示）</option>
       </select>
       <div class="space-y-1.5">
@@ -1052,19 +1058,25 @@
       const chameleonNextBtn = document.getElementById("chameleon-next");
       const chameleonNeverWrap = document.getElementById("chameleon-never-wrap");
       const chameleonNever = document.getElementById("chameleon-never");
+      const falconGuideNeverWrap = document.getElementById("falcon-guide-never-wrap");
+      const guideNeverInCarousel = document.getElementById("guide-never-in-carousel");
 
-      const guideSteps = [
+      /** Falcon UI guide after Hall setup: same illustrated carousel as Chameleon live + scoreboard steps */
+      const falconUiCarouselSteps = [
         {
-          targetId: "btn-live",
-          title: "Tap to start live streaming",
-          desc: "Recording can run in parallel during live streaming.",
+          layout: "illustrated",
+          title: "Start live streaming",
+          desc: "Tap live on the left toolbar to go live. You can keep recording while streaming to your audience.",
+          illustration: "live",
         },
         {
-          targetId: "btn-record",
-          title: "Tap the red button to start recording",
-          desc: "Tap again to stop. This clip will be saved automatically.",
+          layout: "illustrated",
+          title: "Show the scoreboard overlay",
+          desc: "Open the scoreboard from the left toolbar to display live scores on your stream or recording.",
+          illustration: "scoreboard",
         },
       ];
+      var captureCarouselMode = null;
       const tutorialCatalog = [
         {
           id: "falcon-intro",
@@ -1277,9 +1289,18 @@
         }
       }
       function syncUnifiedNeverCheckbox() {
-        if (!guideNever) return;
-        guideNever.checked =
-          guidesHidden() || localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1";
+        var checked = guidesHidden() || localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1";
+        if (guideNever) guideNever.checked = checked;
+        if (guideNeverInCarousel) guideNeverInCarousel.checked = checked;
+      }
+
+      function getActiveCarouselSteps() {
+        if (captureCarouselMode === "falcon-ui") return falconUiCarouselSteps;
+        return chameleonCarouselSteps;
+      }
+
+      function isCaptureGuideCarouselOpen() {
+        return chameleonCarousel && !chameleonCarousel.classList.contains("hidden");
       }
       function shouldPromptReturningGuideChoice() {
         return false;
@@ -1306,48 +1327,6 @@
         guideLineHead.style.left = x2 - 5 + "px";
         guideLineHead.style.top = y2 - 5 + "px";
         guideLineHead.style.transform = "rotate(" + (ang + 45) + "deg)";
-      }
-
-      function renderGuideStep(stepIndex) {
-        if (stepIndex < 0 || stepIndex >= guideSteps.length) return;
-        state.guideStep = stepIndex;
-        const step = guideSteps[stepIndex];
-        const target = document.getElementById(step.targetId);
-        if (!target || !deviceEl) return;
-
-        const tRect = target.getBoundingClientRect();
-        const cRect = deviceEl.getBoundingClientRect();
-        guideTitle.textContent = step.title;
-        guideDesc.textContent = step.desc;
-        guideProgress.textContent = stepIndex + 1 + "/" + guideSteps.length;
-        guideNextBtn.textContent = stepIndex === guideSteps.length - 1 ? "Done" : "Next";
-        const allowSkipOrOptOut = !isNewUser() || state.isGuideFlowManual;
-        if (guideSkipBtn) guideSkipBtn.classList.toggle("hidden", !allowSkipOrOptOut);
-        var isLastStep = stepIndex === guideSteps.length - 1;
-        if (guideNeverWrap) {
-          guideNeverWrap.classList.toggle("hidden", !isLastStep);
-        }
-        if (guideNever) {
-          guideNever.disabled = false;
-          guideNever.closest("label")?.classList.remove("opacity-40");
-          if (isLastStep) {
-            syncUnifiedNeverCheckbox();
-          } else {
-            guideNever.checked = false;
-          }
-        }
-
-        const tx = tRect.left - cRect.left + tRect.width / 2;
-        const ty = tRect.top - cRect.top + tRect.height / 2;
-        const isRight = tx > cRect.width * 0.6;
-        const textX = isRight ? Math.max(30, tx - 260) : Math.min(cRect.width - 250, tx + 36);
-        const textY = Math.max(42, Math.min(cRect.height - 68, ty - 30));
-        guideTextBox.style.left = textX + "px";
-        guideTextBox.style.top = textY + "px";
-
-        const fromX = isRight ? textX + 230 : textX + 6;
-        const fromY = textY + 18;
-        setGuideLine(fromX, fromY, tx, ty);
       }
 
       function renderHallGuideStep(stepIndex) {
@@ -1383,6 +1362,7 @@
       /** Skip Hall setup + all following capture UI guides; same persistence as last-step “don’t show again”. */
       function skipAllGuidesFromHall() {
         closeHallGuideModal();
+        closeCaptureGuideCarousel();
         closeGuideUI();
         var wasManual = state.isGuideFlowManual;
         state.isGuideFlowManual = false;
@@ -1414,6 +1394,9 @@
         if (!hallGuideModal.classList.contains("hidden")) {
           return;
         }
+        if (isCaptureGuideCarouselOpen()) {
+          return;
+        }
         if (!shouldAutoShowGuides()) return;
         if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") {
           return;
@@ -1428,24 +1411,14 @@
           state.isHardwareCalibrated = true;
         }
         setTimeout(function () {
-          deviceEl.setAttribute("data-guide-active", "true");
-          uiGuideOverlay.classList.remove("hidden", "pointer-events-none");
-          uiGuideOverlay.classList.add("pointer-events-auto");
-          uiGuideOverlay.removeAttribute("aria-hidden");
-          renderGuideStep(0);
+          showFalconUiGuideCarousel();
         }, 500);
       }
 
-      function nextGuideStep() {
-        if (state.guideStep < guideSteps.length - 1) {
-          renderGuideStep(state.guideStep + 1);
-        } else {
-          completeGuide();
-        }
-      }
-
       function completeGuide() {
-        if (guideNever && guideNever.checked) {
+        var neverChecked =
+          (guideNeverInCarousel && guideNeverInCarousel.checked) || (guideNever && guideNever.checked);
+        if (neverChecked) {
           localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
           setGuidesHidden(true);
         } else {
@@ -1456,12 +1429,15 @@
           localStorage.setItem(LS_ONBOARDING_DONE, "1");
         }
         state.isGuideFlowManual = false;
+        closeCaptureGuideCarousel();
         closeGuideUI();
       }
 
       function skipUIGuide() {
-        if (isNewUser() && !state.isGuideFlowManual) return;
-        if (guideNever && guideNever.checked) {
+        if (isNewUser() && !state.isGuideFlowManual && captureCarouselMode !== "falcon-ui") return;
+        var neverChecked =
+          (guideNeverInCarousel && guideNeverInCarousel.checked) || (guideNever && guideNever.checked);
+        if (neverChecked) {
           localStorage.setItem(LS_FALCON_SKIP_AUTO_GUIDES, "1");
           setGuidesHidden(true);
         } else {
@@ -1469,15 +1445,12 @@
           localStorage.setItem(LS_DONE, "1");
         }
         state.isGuideFlowManual = false;
+        closeCaptureGuideCarousel();
         closeGuideUI();
       }
 
       function startUIGuide() {
-        deviceEl.setAttribute("data-guide-active", "true");
-        uiGuideOverlay.classList.remove("hidden", "pointer-events-none");
-        uiGuideOverlay.classList.add("pointer-events-auto");
-        uiGuideOverlay.removeAttribute("aria-hidden");
-        renderGuideStep(0);
+        showFalconUiGuideCarousel();
       }
 
       function closeGuideUI() {
@@ -1578,31 +1551,31 @@
           });
         }
         if (chameleonSkipFooterBtn) {
-          chameleonSkipFooterBtn.addEventListener("click", skipChameleonCarousel);
+          chameleonSkipFooterBtn.addEventListener("click", skipCaptureGuideCarousel);
         }
         if (chameleonPrevBtn) {
           chameleonPrevBtn.addEventListener("click", function () {
             if (state.chameleonStep > 0) {
               state.chameleonStep -= 1;
-              renderChameleonStep();
+              renderCaptureGuideStep();
             }
           });
         }
         if (chameleonNextBtn) {
           chameleonNextBtn.addEventListener("click", function () {
-            var last = chameleonCarouselSteps.length - 1;
+            var last = getActiveCarouselSteps().length - 1;
             if (state.chameleonStep < last) {
               state.chameleonStep += 1;
-              renderChameleonStep();
+              renderCaptureGuideStep();
             } else {
-              finishChameleonCarousel();
+              finishCaptureGuideCarousel();
             }
           });
         }
         document.addEventListener("keydown", function (e) {
           if (e.key === "Escape") {
-            if (chameleonCarousel && !chameleonCarousel.classList.contains("hidden")) {
-              skipChameleonCarousel();
+            if (isCaptureGuideCarouselOpen()) {
+              skipCaptureGuideCarousel();
               return;
             }
             if (tutorialPlayerModal && !tutorialPlayerModal.classList.contains("hidden")) {
@@ -1614,16 +1587,14 @@
               return;
             }
             if (!calibrationModal.classList.contains("hidden")) return;
-            if (!uiGuideOverlay.classList.contains("hidden") && !isNewUser()) skipUIGuide();
             if (!tutorialModal.classList.contains("hidden")) closeTutorial();
           }
         });
       }
 
       function handleRecordClick() {
-        if (chameleonCarousel && !chameleonCarousel.classList.contains("hidden")) return;
+        if (isCaptureGuideCarouselOpen()) return;
         if (tutorialPlayerModal && !tutorialPlayerModal.classList.contains("hidden")) return;
-        if (!uiGuideOverlay.classList.contains("hidden")) return;
         if (!hallGuideModal.classList.contains("hidden")) return;
         if (!calibrationModal.classList.contains("hidden")) return;
         toggleRecording();
@@ -1766,29 +1737,55 @@
           settingsPanel.classList.add("hidden");
           settingsPanel.classList.remove("flex");
         }
+        closeCaptureGuideCarousel();
         closeGuideUI();
         closeHallGuideModal();
         closeTutorial();
         showHallGuideModal();
       }
 
-      function showChameleonCarousel() {
-        if (!chameleonCarousel || !isChameleonDevice()) return;
+      function openCaptureGuideCarousel(mode) {
+        if (!chameleonCarousel) return;
+        captureCarouselMode = mode;
         state.chameleonStep = 0;
-        if (chameleonNever) chameleonNever.checked = false;
+        closeGuideUI();
+        closeHallGuideModal();
+        if (mode === "chameleon") {
+          if (chameleonNever) chameleonNever.checked = false;
+        } else if (guideNeverInCarousel) {
+          guideNeverInCarousel.checked = false;
+        }
         chameleonCarousel.classList.remove("hidden");
         chameleonCarousel.classList.add("flex");
-        renderChameleonStep();
+        renderCaptureGuideStep();
+        if (deviceEl && mode === "falcon-ui") {
+          deviceEl.setAttribute("data-guide-active", "true");
+        }
       }
-      function closeChameleonCarousel() {
+
+      function closeCaptureGuideCarousel() {
+        captureCarouselMode = null;
         if (!chameleonCarousel) return;
         chameleonCarousel.classList.add("hidden");
         chameleonCarousel.classList.remove("flex");
+        if (deviceEl) deviceEl.removeAttribute("data-guide-active");
       }
-      function renderChameleonStep() {
-        var total = chameleonCarouselSteps.length;
+
+      function showChameleonCarousel() {
+        if (!isChameleonDevice()) return;
+        openCaptureGuideCarousel("chameleon");
+      }
+
+      function showFalconUiGuideCarousel() {
+        if (!isFalconDevice()) return;
+        openCaptureGuideCarousel("falcon-ui");
+      }
+
+      function renderCaptureGuideStep() {
+        var steps = getActiveCarouselSteps();
+        var total = steps.length;
         var idx = state.chameleonStep;
-        var step = chameleonCarouselSteps[idx];
+        var step = steps[idx];
         if (chameleonStepBody && step) {
           if (step.layout === "illustrated") {
             chameleonStepBody.innerHTML =
@@ -1813,26 +1810,53 @@
           }
         }
         if (chameleonStepIndicator) chameleonStepIndicator.textContent = idx + 1 + "/" + total;
-        if (chameleonNeverWrap) chameleonNeverWrap.classList.toggle("hidden", idx !== total - 1);
+        var isLast = idx >= total - 1;
+        if (captureCarouselMode === "falcon-ui") {
+          if (chameleonNeverWrap) chameleonNeverWrap.classList.add("hidden");
+          if (falconGuideNeverWrap) falconGuideNeverWrap.classList.toggle("hidden", !isLast);
+          if (isLast) syncUnifiedNeverCheckbox();
+        } else {
+          if (falconGuideNeverWrap) falconGuideNeverWrap.classList.add("hidden");
+          if (chameleonNeverWrap) chameleonNeverWrap.classList.toggle("hidden", !isLast);
+        }
         if (chameleonPrevBtn) chameleonPrevBtn.disabled = idx === 0;
         if (chameleonNextBtn) {
-          chameleonNextBtn.textContent = idx >= total - 1 ? "Done" : "Next";
-          chameleonNextBtn.setAttribute("aria-label", idx >= total - 1 ? "Finish guide" : "Next step");
+          chameleonNextBtn.textContent = isLast ? "Done" : "Next";
+          chameleonNextBtn.setAttribute("aria-label", isLast ? "Finish guide" : "Next step");
         }
       }
-      function finishChameleonCarousel() {
+
+      function finishCaptureGuideCarousel() {
+        var mode = captureCarouselMode;
+        if (mode === "falcon-ui") {
+          completeGuide();
+          return;
+        }
         if (chameleonNever && chameleonNever.checked) {
           localStorage.setItem(LS_CHAMELEON_CAROUSEL_SKIP, "1");
         }
-        closeChameleonCarousel();
+        closeCaptureGuideCarousel();
         maybeAutoOpenTutorialList();
         localStorage.setItem(LS_ONBOARDING_DONE, "1");
       }
 
-      function skipChameleonCarousel() {
-        closeChameleonCarousel();
+      function skipCaptureGuideCarousel() {
+        var mode = captureCarouselMode;
+        if (mode === "falcon-ui") {
+          skipUIGuide();
+          return;
+        }
+        closeCaptureGuideCarousel();
         maybeAutoOpenTutorialList();
         localStorage.setItem(LS_ONBOARDING_DONE, "1");
+      }
+
+      function finishChameleonCarousel() {
+        finishCaptureGuideCarousel();
+      }
+
+      function skipChameleonCarousel() {
+        skipCaptureGuideCarousel();
       }
 
       function toggleRecording() {
@@ -2134,7 +2158,7 @@
           floatCloseZone.classList.add("hidden");
         }
         closeReturningGuideChoice();
-        closeChameleonCarousel();
+        closeCaptureGuideCarousel();
         state.chameleonStep = 0;
         setGuidesHidden(false);
         localStorage.removeItem(LS_DONE);

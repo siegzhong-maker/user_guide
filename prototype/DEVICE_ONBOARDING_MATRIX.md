@@ -24,24 +24,45 @@
 | 架设引导（Hall guide） | 校准完成后，且未勾选「不再展示整套引导」 | 包含在 `LS_FALCON_SKIP_AUTO_GUIDES` 中 | **适用**（与 UI 蒙层同一开关，仅在末步勾选） |
 | 界面引导轮播（live / 计分牌） | 架设流程结束后，且未完成或已勾选末步；全屏卡片 + 示意图，非箭头指向 HUD | 同上 `tw_proto_falcon_skip_auto_guides_v1` | **适用** |
 
-**教程目录（仅 Falcon 可见）**：`falcon-intro`（`beforeCalibration`，仅新用户）、`hall-setup`（`afterCalibration`，全员可从 Tutorial Center 打开）。变色龙侧 `getVisibleTutorials()` 固定为空数组。
+**霍尔校准弹窗 — 用户可见英文（`#calibration-modal`）**
+
+- 标题：`Getting ready`（无副标题）
+- 不可跳过；约 2s 进度条（内部仍为霍尔校准流程）
+
+**架设引导 — 用户可见英文**
+
+| 步 | 标签/标题 | 说明 |
+|----|-----------|------|
+| 1 | `All set` · `Align with the center line first` | `Rotate the gimbal to line up with the center line, then hold it steady.` |
+| 2 | — · `Set your mounting height` | `About 2.5 m works well for midfield coverage and stable tracking.` |
+
+**界面引导轮播（Falcon UI，2 步）**
+
+| 步 | 标题 | 说明 |
+|----|------|------|
+| 1 | `Start live streaming` | `Tap Live on the left to go live. You can keep recording while you stream.` |
+| 2 | `Show the scoreboard` | `Tap SC on the left to show live scores on your stream or recording.` |
+
+**教程目录（仅 Falcon 可见）**：`falcon-intro`（`beforeCalibration`，仅新用户）、`hall-setup` 条目标题 **Setup and alignment**（`afterCalibration`，全员可从 Tutorial Center 打开）。变色龙侧 `getVisibleTutorials()` 固定为空数组。
 
 兼容：历史 `tw_proto_never_v1`、旧版 `tw_proto_falcon_skip_setup_tips_v1` / `tw_proto_falcon_skip_ui_hints_v1` 会迁移为统一的 `tw_proto_falcon_skip_auto_guides_v1`。
 
-**演示说明**：设置里「Review onboarding」触发的 `replayAllGuidesWithoutCalibration` 会跳过校准仅重播架设 + UI，便于对照评审；**真机流程仍以每次霍尔校准为先**。
+**演示说明**：设置里 **Replay pre-capture guides** 触发的 `replayAllGuidesWithoutCalibration` 会跳过校准仅重播架设 + UI，便于对照评审；**真机流程仍以每次霍尔校准为先**。
 
 ## 变色龙：步骤与存储键
 
-| 步骤 | 内容概要 | 存储 |
-|------|-----------|------|
-| 1～4 页 | **中线对齐** → **脚架高度（≥2.2 m）** → **直播（图文并茂）** → **计分牌（图文并茂）**（末页可勾选不再展示） | 整套是否不再自动播放：`tw_proto_chameleon_carousel_skip_v1`（末页勾选后为 `1`） |
-| 视频教程 | **无**；设置页 Tutorial **不展示**视频预览区；**无**拍摄页 `?` 浮窗及浮窗开关（仅保留「重播拍摄引导」入口），完成轮播后**不会**自动弹出空教程列表 | — |
+| 步骤 | 用户可见英文（概要） | 存储 |
+|------|----------------------|------|
+| 1 | `Line up with the center line for full court coverage.` | 整套是否不再自动播放：`tw_proto_chameleon_carousel_skip_v1`（末页勾选后为 `1`） |
+| 2 | `Mount on a tripod at least 2.2 m high. Check your framing before you record.` | 同上 |
+| 3～4 | 与 Falcon 轮播相同：Live / SC（图文并茂） | 同上 |
+| 视频教程 | **无**；设置页 Tutorial **不展示**视频预览区；**无**拍摄页 `?` 浮窗及浮窗开关（仅保留 **Replay shooting guide**），完成轮播后**不会**自动弹出空教程列表 | — |
 | Skip | 任意页可跳过整段 | 关闭层叠，不写入跳过标志（与产品策略一致时可改为写入） |
 
 设备分支：`tw_proto_device_family_v1` 值为 `falcon` 或 `chameleon`。
 
 ## 验收对照（摘要）
 
-- **Falcon**：首次上手先全屏首发视频，关闭后再霍尔校准 → 架设引导 → 界面引导轮播（直播、计分牌）。末步勾选「不再展示」后，下次仍走霍尔校准，但不再自动播放架设引导与界面轮播。
+- **Falcon**：首次上手先全屏首发视频，关闭后再霍尔校准（仅 **Getting ready** + 进度条）→ 架设引导 → 界面引导轮播（直播、计分牌）。末步勾选「不再展示」后，下次仍走霍尔校准，但不再自动播放架设引导与界面轮播。
 - **变色龙**：无视频教程、无 `?` 浮窗；勾选末页「不再展示」后，进入取景不再自动播四步流程；可在设置 → Tutorial Center 重播拍摄引导。
 - **Falcon**：`?` 打开教程中心快捷菜单（关闭浮窗 / 打开 Tutorial Center）；不再自动弹出教程列表（避免与首发全屏视频抢焦点）。

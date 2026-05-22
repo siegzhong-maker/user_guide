@@ -329,7 +329,7 @@
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
           </div>
-          <h2 id="calib-title" class="mb-2 text-xl font-bold text-white">Initializing...</h2>
+          <h2 id="calib-title" class="mb-4 text-xl font-bold text-white">Getting ready</h2>
           <div id="calibration-progress" class="mb-6 hidden">
             <div class="h-2 w-full overflow-hidden rounded-full bg-gray-700">
               <div
@@ -337,7 +337,7 @@
                 id="progress-bar"
               ></div>
             </div>
-            <span id="calib-countdown" class="hidden font-semibold text-blue-300">2s</span>
+            <span id="calib-countdown" class="hidden font-semibold text-blue-300">About 2 sec</span>
           </div>
           <div class="flex space-x-3 hidden" id="calibration-actions"></div>
         </div>
@@ -362,7 +362,7 @@
           <div class="absolute left-[56%] top-[48%] h-[1px] w-[16%] border-t border-dashed border-green-300/80"></div>
         </div>
         <div class="absolute right-5 top-[30%] z-10 w-[17rem] rounded-xl border border-emerald-200/25 bg-black/35 p-3 text-left text-white shadow-lg backdrop-blur-[2px]">
-          <p id="hall-guide-tag" class="text-lg font-bold text-lime-400">● Calibration complete</p>
+          <p id="hall-guide-tag" class="text-lg font-bold text-lime-400">● All set</p>
           <h3 id="hall-guide-title" class="mt-1 text-[1.35rem] font-semibold leading-tight">Align with the center line first</h3>
           <p id="hall-guide-desc" class="mt-2 text-sm leading-relaxed text-white/90"></p>
         </div>
@@ -485,8 +485,8 @@
           class="w-full max-w-[22rem] rounded-[22px] border border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(243,247,255,0.9))] p-5 text-slate-900 shadow-[0_20px_50px_rgba(15,23,42,0.28)] backdrop-blur-xl"
         >
           <div class="mb-2 text-center">
-            <h3 class="text-[22px] font-semibold tracking-tight text-slate-800">Notice</h3>
-            <p class="mt-1 text-xs text-slate-500">Do you want to view the precautions and UI guide?</p>
+            <h3 class="text-[22px] font-semibold tracking-tight text-slate-800">Before you shoot</h3>
+            <p class="mt-1 text-xs text-slate-500">Want a quick walkthrough of setup and on-screen tips?</p>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <button
@@ -494,14 +494,14 @@
               id="returning-choice-skip"
               class="rounded-[12px] border border-slate-200 bg-white px-2.5 py-2 text-[13px] font-semibold leading-tight text-slate-700 transition hover:bg-slate-50 active:scale-[0.98]"
             >
-              Skip and do not show again
+              Skip walkthrough
             </button>
             <button
               type="button"
               id="returning-choice-view"
               class="rounded-[12px] bg-[linear-gradient(180deg,#5a96ff,#2f6de8)] px-2.5 py-2 text-[13px] font-semibold leading-tight text-white shadow-[0_8px_20px_rgba(47,109,232,0.35),inset_0_1px_0_rgba(255,255,255,0.28)] transition hover:brightness-105 active:scale-[0.98]"
             >
-              View guides
+              Show walkthrough
             </button>
           </div>
         </div>
@@ -533,7 +533,7 @@
               id="btn-open-all-guides"
               class="w-full rounded-lg border border-blue-400/40 bg-blue-500/20 px-3 py-2 text-left text-xs text-blue-100 transition hover:bg-blue-500/30"
             >
-              Review onboarding tutorial and precautions
+              Replay pre-capture guides
             </button>
           </div>
         </div>
@@ -704,7 +704,7 @@
               <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-3">
                 <div class="min-w-0">
                   <div class="text-[15px] font-medium">Auto Zoom</div>
-                  <p class="mt-0.5 text-xs leading-snug text-white/45">Keep the subject centered as it moves.</p>
+                  <p class="mt-0.5 text-xs leading-snug text-white/45">Zoom in on the action while keeping the subject in frame.</p>
                 </div>
                 <div class="relative h-7 w-11 shrink-0 rounded-full bg-white/20">
                   <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-sm"></span>
@@ -814,7 +814,7 @@
               </div>
               <div id="settings-tutorial-featured-wrap" class="flex flex-col gap-4">
                 <p id="settings-tutorial-blurb" class="text-xs leading-relaxed text-white/45">
-                  Featured tutorial — preview below; tap to watch fullscreen on top of the capture preview.
+                  Watch the featured tutorial full screen over the capture preview.
                 </p>
                 <div class="flex flex-col gap-2">
                   <button
@@ -860,7 +860,7 @@
               >
                 <div class="text-[13px] font-semibold text-white/95">Chameleon shooting guide</div>
                 <p class="text-xs leading-relaxed text-white/50">
-                  Use the button below to replay the four-step shooting guide shown before capture.
+                  Replay the four-step guide shown before capture.
                 </p>
                 <button
                   type="button"
@@ -877,7 +877,7 @@
                 <div class="min-w-0">
                   <div class="text-[15px] font-medium">“?” shortcut on capture</div>
                   <p id="settings-tutorial-q-blurb" class="mt-0.5 text-xs leading-snug text-white/45">
-                    Turn the Tutorial Center tab on the shooting screen on or off.
+                    Show or hide ? on the capture screen. Tap ? for shortcut options.
                   </p>
                 </div>
                 <button
@@ -899,15 +899,14 @@
               >
                 <div class="text-[13px] font-semibold text-white/90">New user onboarding</div>
                 <p class="mt-1 text-xs leading-relaxed text-white/45">
-                  Replay the product guides shown before capture: Falcon Hall setup and capture overlays, or the Chameleon
-                  multi-step carousel — plus precautions where applicable.
+                  Replay pre-capture guides: Falcon setup and capture tips, or the Chameleon four-step walkthrough.
                 </p>
                 <button
                   type="button"
                   id="settings-review-onboarding"
                   class="mt-3 w-full rounded-lg border border-blue-400/45 bg-blue-500/20 px-3 py-2 text-left text-xs font-semibold text-blue-100 transition hover:bg-blue-500/30"
                 >
-                  Review onboarding tutorial and precautions
+                  Replay pre-capture guides
                 </button>
               </div>
             </section>
@@ -1066,13 +1065,13 @@
         {
           layout: "illustrated",
           title: "Start live streaming",
-          desc: "Tap live on the left toolbar to go live. You can keep recording while streaming to your audience.",
+          desc: "Tap Live on the left to go live. You can keep recording while you stream.",
           illustration: "live",
         },
         {
           layout: "illustrated",
-          title: "Show the scoreboard overlay",
-          desc: "Open the scoreboard from the left toolbar to display live scores on your stream or recording.",
+          title: "Show the scoreboard",
+          desc: "Tap SC on the left to show live scores on your stream or recording.",
           illustration: "scoreboard",
         },
       ];
@@ -1082,7 +1081,7 @@
           id: "falcon-intro",
           title: "Get started with Falcon",
           duration: "02:15",
-          desc: "Overview before your first capture session.",
+          desc: "A quick overview before your first recording.",
           category: "onboarding",
           entryPolicy: "beforeCalibration",
           displayMode: "fullscreen",
@@ -1093,9 +1092,9 @@
         },
         {
           id: "hall-setup",
-          title: "Hall setup and alignment checklist",
+          title: "Setup and alignment",
           duration: "01:40",
-          desc: "Review center-line alignment and setup height before recording.",
+          desc: "Center-line alignment and height before you record.",
           category: "setup",
           entryPolicy: "afterCalibration",
           displayMode: "fullscreen",
@@ -1111,22 +1110,22 @@
       const chameleonCarouselSteps = [
         {
           layout: "text",
-          text: "Align the camera with the center line to ensure full court coverage.",
+          text: "Line up with the center line for full court coverage.",
         },
         {
           layout: "text",
-          text: "Place the camera on a tripod at 2.2 m or higher for the best perspective. Confirm positioning before recording.",
+          text: "Mount on a tripod at least 2.2 m high. Check your framing before you record.",
         },
         {
           layout: "illustrated",
           title: "Start live streaming",
-          desc: "Tap live on the left toolbar to go live. You can keep recording while streaming to your audience.",
+          desc: "Tap Live on the left to go live. You can keep recording while you stream.",
           illustration: "live",
         },
         {
           layout: "illustrated",
-          title: "Show the scoreboard overlay",
-          desc: "Open the scoreboard from the left toolbar to display live scores on your stream or recording.",
+          title: "Show the scoreboard",
+          desc: "Tap SC on the left to show live scores on your stream or recording.",
           illustration: "scoreboard",
         },
       ];
@@ -1172,12 +1171,12 @@
       const hallGuideSteps = [
         {
           title: "Align with the center line first",
-          desc: "After calibration, rotate the device manually to align with the center line and keep it steady.",
+          desc: "Rotate the gimbal to line up with the center line, then hold it steady.",
           image: "../image-20890a7b-a3c3-47ba-b03c-0ea9eba3e53a.png",
         },
         {
-          title: "Confirm setup height for midfield",
-          desc: "A setup height around 2.5m is recommended for better midfield coverage and stable tracking.",
+          title: "Set your mounting height",
+          desc: "About 2.5 m works well for midfield coverage and stable tracking.",
           image: "../image-257628d3-f8ed-4e17-a147-014d124b481a.png",
         },
       ];
@@ -1229,7 +1228,7 @@
         var tutorialBlurb = document.getElementById("settings-tutorial-blurb");
         if (tutorialBlurb) {
           tutorialBlurb.textContent =
-            "Featured tutorial — preview below; tap to watch fullscreen on top of the capture preview.";
+            "Watch the featured tutorial full screen over the capture preview.";
         }
         var qToggleWrap = document.getElementById("settings-tutorial-q-toggle-wrap");
         if (qToggleWrap) {
@@ -1238,7 +1237,7 @@
         var qBlurb = document.getElementById("settings-tutorial-q-blurb");
         if (qBlurb && family !== "chameleon") {
           qBlurb.textContent =
-            "Show or hide the ? chip. Tap ? to close the floating shortcut or open Tutorial Center in Recording Settings.";
+            "Show or hide ? on the capture screen. Tap ? for shortcut options.";
         }
         if (btnTutorial) {
           if (family === "chameleon") {

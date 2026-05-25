@@ -1083,7 +1083,7 @@
           duration: "02:15",
           desc: "A quick overview before your first recording.",
           category: "onboarding",
-          entryPolicy: "beforeCalibration",
+          entryPolicy: "afterCalibration",
           displayMode: "fullscreen",
           poster: "../image.png",
           enabled: true,
@@ -1678,13 +1678,7 @@
           calibrationProgress.classList.add("hidden");
           progressBar.style.width = "0%";
           if (calibCountdown) calibCountdown.textContent = Math.ceil(CALIBRATION_DURATION_MS / 1000) + "s";
-          if (shouldPromptReturningGuideChoice()) {
-            openReturningGuideChoice();
-          } else if (isFalconDevice() && shouldAutoShowGuides()) {
-            if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) !== "1") {
-              showHallGuideModal();
-            }
-          }
+          maybeAutoOpenFalconIntroVideo();
         }, 350);
       }
 
@@ -2066,6 +2060,32 @@
         tutorialPlayerModal.classList.remove("hidden");
         tutorialPlayerModal.classList.add("flex");
       }
+      function proceedFalconGuidesAfterIntroOrSkipVideo() {
+        if (shouldPromptReturningGuideChoice()) {
+          openReturningGuideChoice();
+          return;
+        }
+        if (!isFalconDevice() || !shouldAutoShowGuides()) return;
+        if (localStorage.getItem(LS_FALCON_SKIP_AUTO_GUIDES) === "1") return;
+        showHallGuideModal();
+      }
+
+      /** First-time Falcon: full-screen intro video after calibration, then setup guide. */
+      function maybeAutoOpenFalconIntroVideo() {
+        if (!isFalconDevice()) return;
+        if (shouldPromptReturningGuideChoice()) {
+          openReturningGuideChoice();
+          return;
+        }
+        if (!isNewUser() || localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) === "1") {
+          proceedFalconGuidesAfterIntroOrSkipVideo();
+          return;
+        }
+        setTimeout(function () {
+          openTutorialPlayer("falcon-intro");
+        }, 350);
+      }
+
       function closeTutorialPlayer() {
         if (!tutorialPlayerModal) return;
         var closingId = activeTutorialId;
@@ -2075,11 +2095,10 @@
         if (
           closingId === "falcon-intro" &&
           isFalconDevice() &&
-          isNewUser() &&
           localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1"
         ) {
           localStorage.setItem(LS_FALCON_INTRO_VIDEO_SEEN, "1");
-          maybeRunAutoCalibrationFlow();
+          proceedFalconGuidesAfterIntroOrSkipVideo();
         }
       }
 
@@ -2181,9 +2200,7 @@
         if (guideNever) guideNever.checked = false;
         setTimeout(function () {
           checkAndShowGuide();
-          if (isFalconDevice() && isNewUser() && localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1") {
-            openTutorialPlayer("falcon-intro");
-          } else if (isFalconDevice()) {
+          if (isFalconDevice()) {
             maybeRunAutoCalibrationFlow();
           }
         }, 500);
@@ -2208,13 +2225,7 @@
           }
         } else {
           checkAndShowGuide();
-          if (isNewUser() && localStorage.getItem(LS_FALCON_INTRO_VIDEO_SEEN) !== "1") {
-            setTimeout(function () {
-              openTutorialPlayer("falcon-intro");
-            }, 400);
-          } else {
-            setTimeout(maybeRunAutoCalibrationFlow, 900);
-          }
+          setTimeout(maybeRunAutoCalibrationFlow, 400);
         }
       });
     </script>
